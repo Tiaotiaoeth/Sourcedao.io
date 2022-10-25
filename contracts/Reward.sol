@@ -16,8 +16,10 @@ contract Reward {
         passLines[_type][_level] = _score;
     }
 
-    function getReward(uint8 _type, uint8 _level, address[] _questions, uint8[] _answers) public {
-        uint8 score = getScore(_answers);
+    function getReward(uint8 _type, uint8 _level, uint256[] _questionIndices, uint8[] _answers) public {
+        require(_indices.length == _answers.length);
+
+        uint8 score = getScore(_type, _level, _questionIndices, _answers);
         uint8 passLine = passLines[_type][_level]
         if (score >= passLine) {
             mint(user, _type, _level, score);
