@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.13;
 import "./QuestionRepo.sol";
 
@@ -8,7 +9,9 @@ contract Examination {
     address public owner;     // 保存合约的拥有者，只有拥有者可以修改questionRepo和questionSizeMap
     mapping(uint8 => mapping(uint8 => uint8)) questionSizeMap; // 保存对应考试类型、难度的考题数量
 
-    event GenerateExamination(address indexed sender, uint8 type, uint8 level);
+    QuestionRepo questionRepo = new QuestionRepo();
+
+    event GenerateExamination(address indexed sender, uint8 qtype, uint8 qlevel);
 
     constructor() {
         owner = msg.sender;
@@ -22,20 +25,21 @@ contract Examination {
     }
 
     // TODO：边界检查
-    function getSize(uint8 _type, utin8 _level) pure returns (uint8) {
+    function getSize(uint8 _type, uint8 _level) private view returns (uint8) {
         return questionSizeMap[_type][_level];
     }
 
     // 生成一次测试
-    function genExam(uint8 _type, uint8 _level) public view returns (string[], uint256[]) {
+    function genExam(uint8 _type, uint8 _level) public returns (string[] memory, uint256[] memory) {
         uint8 size = getSize(_type, _level);
-        address[size] questions;
-        uint256[size] indices;
+        string[] memory questions;
+        uint256[] memory indices;
         for (uint i = 0; i < size; i++) {
-            (indices[i], question[i]) = randQuestionHash(_type, _level);
+            (indices[i], questions[i]) = questionRepo.randQuestionHash(_type, _level);
         }
-        return (questions, indices);
 
         emit GenerateExamination(msg.sender, _type, _level);
+
+        return (questions, indices);
     }
 }
