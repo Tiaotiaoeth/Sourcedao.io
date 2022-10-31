@@ -56,7 +56,7 @@ export default (): JSX.Element => {
           </div>
           <div className="f_w_c_partner">
             <div className="f_w_c_p_title">{lang(footerLang.partner)}</div>
-            <a href="https://twitter.com/viabuilderdao">
+            <a href="https://twitter.com/BuidlerDAO">
               <motion.img src={partner} whileHover={{ scale: 1.2 }} />
               <p>BUIDLER DAO</p>
             </a>

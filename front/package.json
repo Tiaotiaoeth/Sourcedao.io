@@ -1,5 +1,5 @@
 {
-  "name": "react",
+  "name": "source-home",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -11,6 +11,7 @@
     "build:pre": "cross-env NODE_ENV=pre  webpack --config bin/webpack.pro.js",
     "build:pro": "cross-env NODE_ENV=pro  webpack --config bin/webpack.pro.js",
     "build:gp": "cross-env NODE_ENV=dev  webpack --config bin/webpack.gp.js",
+    "analyz": "cross-env NODE_ENV=dev webpack --config bin/webpack.analyz.js",
     "serve": "vite preview",
     "test": "eslint src --ext .js,.ts,.tsx",
     "postinstall": "chmod ug+x .husky/* && chmod ug+x .git/hooks/* && husky install",
@@ -21,15 +22,9 @@
   "license": "ISC",
   "dependencies": {
     "@fontsource/space-grotesk": "^4.5.10",
-    "@reduxjs/toolkit": "^1.8.5",
     "framer-motion": "^7.5.3",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "react-redux": "^8.0.2",
-    "react-router-dom": "^6.3.0",
-    "redux": "^4.2.0",
-    "redux-persist": "^6.0.0",
-    "redux-thunk": "^2.4.1",
     "swiper": "^8.4.3"
   },
   "devDependencies": {
@@ -39,9 +34,6 @@
     "@babel/preset-typescript": "^7.13.0",
     "@types/markdown-it": "^12.2.3",
     "@types/react": "^18.0.18",
-    "@types/react-dom": "^18.0.6",
-    "@types/react-router-dom": "^5.3.3",
-    "@types/redux-persist": "^4.3.1",
     "@types/swiper": "^6.0.0",
     "@typescript-eslint/eslint-plugin": "^4.21.0",
     "@typescript-eslint/parser": "^4.21.0",
@@ -72,6 +64,7 @@
     "url-loader": "^4.1.1",
     "vite": "^3.1.0",
     "webpack": "^5.31.2",
+    "webpack-bundle-analyzer": "^4.6.1",
     "webpack-cli": "^4.6.0",
     "webpack-dev-server": "^3.11.2",
     "webpack-merge": "^5.7.3",

@@ -1,14 +1,12 @@
-import React, { useState, useEffect, SyntheticEvent } from 'react'
+import React, { useState, useEffect, useContext, SyntheticEvent } from 'react'
 
-import { useAppDispatch, useAppSelector } from '@store/index'
-
-import { setLang } from '@store/modules/lang'
-
-import ctsLang from '@constants/lang'
+import { LANG, SOURCE_LANG_LOCAL } from '@constants/lang'
 
 import { headerLang } from '@langs/index'
 
 import langHook from '@hooks/langHook'
+
+import { LangContext } from '@views/Home/langContext'
 
 import './index.less'
 
@@ -27,13 +25,11 @@ const router = [
   headerLang.medium,
 ]
 
-export default ({routerIndex, toSlide}: HeaderProps): JSX.Element => {
+export default ({ routerIndex, toSlide }: HeaderProps): JSX.Element => {
 
   const [popShow, setPopShow] = useState(false)
 
-  const dispatch = useAppDispatch()
-
-  const { lang } = useAppSelector((state) => state.langReducers)
+  const { lang, setLang } = useContext(LangContext)
 
   const local = langHook()
 
@@ -42,8 +38,9 @@ export default ({routerIndex, toSlide}: HeaderProps): JSX.Element => {
     setPopShow(!popShow)
   }
 
-  const handleLocal = (lang: ctsLang) => {
-    dispatch(setLang(lang))
+  const handleLocal = (lang: LANG) => {
+    window.localStorage.setItem(SOURCE_LANG_LOCAL, lang)
+    setLang(lang)
   }
 
   const handleDoc = () => setPopShow(false)
@@ -83,8 +80,8 @@ export default ({routerIndex, toSlide}: HeaderProps): JSX.Element => {
             <img src={localImg} alt="" />
             {popShow && (
               <ul className="h_w_b_l_pop">
-                <li className={lang === ctsLang.en_us ? 'h_w_b_l_p_current' : ''} onClick={() => handleLocal(ctsLang.en_us)}>English</li>
-                <li className={lang === ctsLang.zh_cn ? 'h_w_b_l_p_current' : ''} onClick={() => handleLocal(ctsLang.zh_cn)}>简体中文</li>
+                <li className={lang === LANG.en_us ? 'h_w_b_l_p_current' : ''} onClick={() => handleLocal(LANG.en_us)}>English</li>
+                <li className={lang === LANG.zh_cn ? 'h_w_b_l_p_current' : ''} onClick={() => handleLocal(LANG.zh_cn)}>简体中文</li>
               </ul>
             )}
           </div>

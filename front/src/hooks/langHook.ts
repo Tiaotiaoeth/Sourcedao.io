@@ -1,8 +1,8 @@
-import { useAppSelector } from '@store/index'
-// import ctsLang from '@constants/lang'
+import { useContext } from 'react'
+import { LangContext } from '@views/Home/langContext'
 import { Lang } from '@langs/index'
 
 export default (): (obj: Lang) => string => {
-  const { lang } = useAppSelector((state) => state.langReducers)
+  const { lang } = useContext(LangContext)
   return (obj: Lang) => obj[lang]
 }

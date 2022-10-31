@@ -18,6 +18,14 @@ interface RoadProps {
   routerIndex: number
 }
 
+const initial = { y: 104 }
+
+const transition = {
+  duration: 0.8,
+  delay: 0.4,
+  ease: 'linear'
+}
+
 export default ({ routerIndex }: RoadProps): JSX.Element => {
   const swiper = useSwiper()
 
@@ -28,37 +36,25 @@ export default ({ routerIndex }: RoadProps): JSX.Element => {
   const rightTextControls = useAnimationControls()
 
   useEffect(() => {
-    switch (routerIndex) {
-      case 0:
-        roadControls.set({ y: 100, opacity: 0 })
-        roadControls.start({ y: 0, opacity: 1 })
-        break
-      case 1:
-        // left
-        leftTextControls.set({ x: -370 })
-        leftTextControls.start({ x: 0 })
-        // right
-        rightTextControls.set({ x: 500 })
-        rightTextControls.start({ x: 0 })
-        break
+    if (routerIndex !== 1) return
 
-      default:
-        break
-    }
+    roadControls.set({ opacity: 0 })
+    roadControls.start({ opacity: 1 })
+    // left
+    leftTextControls.set(initial)
+    leftTextControls.start({ y: 0 })
+    // right
+    rightTextControls.set(initial)
+    rightTextControls.start({ y: 0 })
   }, [routerIndex])
 
   return (
     <div className="home_road">
       <motion.div
         className="home_road_content"
-        initial={{ y: 100, opacity: 0 }}
-        transformTemplate={({ y }) => `translateY(${y})`}
+        initial={{ opacity: 0 }}
         animate={roadControls}
-        transition={{
-          duration: 0.6,
-          delay: 0.4,
-          ease: 'linear'
-        }}
+        transition={transition}
       >
         <div className="h_r_c_title">{lang(homeLang.road_title)}</div>
         <div className="h_r_c_sub_title">{lang(homeLang.road_sub_title)}</div>
@@ -68,14 +64,10 @@ export default ({ routerIndex }: RoadProps): JSX.Element => {
           <img src={roadImg} alt="" />
           <div className="h_r_c_r_setp h_r_c_r_setp1">
             <motion.div
-              initial={{ x: -370 }}
-              transformTemplate={({ x }) => `translateX(${x})`}
+              initial={initial}
+              transformTemplate={({ y }) => `translateY(${y})`}
               animate={leftTextControls}
-              transition={{
-                duration: 0.6,
-                delay: 0.4,
-                ease: 'linear'
-              }}
+              transition={transition}
             >
               <div className="h_r_c_r_s_title">{lang(homeLang.road_setp_1_title)}</div>
               <div className="h_r_c_r_s_text">{lang(homeLang.road_setp_1_1)}</div>
@@ -85,32 +77,24 @@ export default ({ routerIndex }: RoadProps): JSX.Element => {
           </div>
           <div className="h_r_c_r_setp h_r_c_r_setp2">
             <motion.div
-              initial={{ x: 500 }}
-              transformTemplate={({ x }) => `translateX(${x})`}
+              initial={initial}
+              transformTemplate={({ y }) => `translateY(${y})`}
               animate={rightTextControls}
-              transition={{
-                duration: 0.4,
-                delay: 0.5,
-                ease: 'linear'
-              }}
+              transition={transition}
             >
               <div className="h_r_c_r_s_title">{lang(homeLang.road_setp_2_title)}</div>
               <div className="h_r_c_r_s_text">{lang(homeLang.road_setp_2_1)}</div>
               <div className="h_r_c_r_s_text">{lang(homeLang.road_setp_2_2)}</div>
               <div className="h_r_c_r_s_text">{lang(homeLang.road_setp_2_3)}</div>
-              <div className="h_r_c_r_s_text">{lang(homeLang.road_setp_2_3)}</div>
+              <div className="h_r_c_r_s_text">{lang(homeLang.road_setp_2_4)}</div>
             </motion.div>
           </div>
           <div className="h_r_c_r_setp h_r_c_r_setp3">
             <motion.div
-              initial={{ x: -370 }}
-              transformTemplate={({ x }) => `translateX(${x})`}
+              initial={initial}
+              transformTemplate={({ y }) => `translateY(${y})`}
               animate={leftTextControls}
-              transition={{
-                duration: 0.4,
-                delay: 0.6,
-                ease: 'linear'
-              }}
+              transition={transition}
             >
               <div className="h_r_c_r_s_title">{lang(homeLang.road_setp_3_title)}</div>
               <div className="h_r_c_r_s_text">{lang(homeLang.road_setp_3_1)}</div>
@@ -120,14 +104,10 @@ export default ({ routerIndex }: RoadProps): JSX.Element => {
           </div>
           <div className="h_r_c_r_setp h_r_c_r_setp4">
             <motion.div
-              initial={{ x: 500 }}
-              transformTemplate={({ x }) => `translateX(${x})`}
+              initial={initial}
+              transformTemplate={({ y }) => `translateY(${y})`}
               animate={rightTextControls}
-              transition={{
-                duration: 0.4,
-                delay: 0.7,
-                ease: 'linear'
-              }}
+              transition={transition}
             >
               <div className="h_r_c_r_s_title">{lang(homeLang.road_setp_4_title)}</div>
               <div className="h_r_c_r_s_text">{lang(homeLang.road_setp_4_1)}</div>

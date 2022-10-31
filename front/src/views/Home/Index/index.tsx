@@ -17,6 +17,8 @@ interface IndexProps {
   routerIndex: number
 }
 
+const initial = { opacity: 0 }
+
 const transition = {
   duration: 0.8,
   delay: 0.4,
@@ -38,19 +40,19 @@ export default ({ routerIndex }: IndexProps): JSX.Element => {
   useEffect(() => {
     if (routerIndex !== 0) return
     // bg img
-    bgControls.set({ opacity: 0 })
+    bgControls.set(initial)
     bgControls.start({ opacity: 0.1 })
     // logo img
-    logoControls.set({ opacity: 0, scale: 0 })
-    logoControls.start({ opacity: 1, scale: 1 })
+    logoControls.set(initial)
+    logoControls.start({ opacity: 1 })
     // title
-    titleControls.set({ y: 34 })
-    titleControls.start({ y: 0 })
+    titleControls.set(initial)
+    titleControls.start({ opacity: 1 })
     // sub title
-    sbuTitleControls.set({ y: -24 })
-    sbuTitleControls.start({ y: 0 })
+    sbuTitleControls.set(initial)
+    sbuTitleControls.start({ opacity: 1 })
     // button
-    buttonControls.set({ opacity: 0 })
+    buttonControls.set(initial)
     buttonControls.start({ opacity: 1 })
 
   }, [routerIndex])
@@ -66,26 +68,21 @@ export default ({ routerIndex }: IndexProps): JSX.Element => {
       <div className="home_index_content">
         <motion.div
           className="h_i_c_bg"
-          initial={{opacity: 0}}
+          initial={initial}
           animate={bgControls}
-          transition={{
-            duration: 0,
-            delay: 1.2,
-            ease: 'linear'
-          }}
+          transition={transition}
         ></motion.div>
         <div className="h_i_c_logo"></div>
         <div className="h_i_c_text">
           <motion.img
             src={source_daoImg}
-            initial={{ opacity: 0, scale: 0 }}
+            initial={initial}
             animate={logoControls}
             transition={transition}
           />
           <h6>
             <motion.div
-              initial={{ y: 34 }}
-              transformTemplate={({ y }) => `translateY(${y})`}
+              initial={initial}
               animate={titleControls}
               transition={transition}
             >
@@ -94,8 +91,7 @@ export default ({ routerIndex }: IndexProps): JSX.Element => {
           </h6>
           <div>
             <motion.div
-              initial={{ y: -24 }}
-              transformTemplate={({ y }) => `translateY(${y})`}
+              initial={initial}
               animate={sbuTitleControls}
               transition={transition}
             >
@@ -105,7 +101,7 @@ export default ({ routerIndex }: IndexProps): JSX.Element => {
         </div>
         <motion.div
           className="h_i_c_buttons"
-          initial={{ opacity: 0 }}
+          initial={initial}
           animate={buttonControls}
           transition={transition}
         >

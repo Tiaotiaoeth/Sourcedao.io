@@ -64,7 +64,7 @@ const rules = [
       options: {
         limit: 8 * 1024,
         name: '[contenthash:8].[ext]',
-        outputPath: 'imgs'
+        outputPath: 'imags'
       }
     },
     exclude: '/node_modules/'
