@@ -1,0 +1,119 @@
+.home_team {
+  width: 1440px;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  > .home_team_content {
+    position: relative;
+    width: 100%;
+    > .h_t_c_title {
+      font-size: 36px;
+      line-height: 1;
+      font-weight: 700;
+      text-align: center;
+      margin-bottom: 25px;
+    }
+    > .h_t_c_sub_title {
+      width: 600px;
+      margin: 0 auto 90px;
+      font-size: 24px;
+      line-height: 32px;
+      text-align: center;
+    }
+    > .h_t_c_team {
+      width: 1174px;
+      height: 402px;
+      margin: 0 auto 140px;
+      position: relative;
+      display: flex;
+      justify-content: space-between;
+      > .h_t_c_t_li {
+        width: 340px;
+        > .h_t_c_t_l_top {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          padding-top: 50px;
+          > .h_t_c_t_l_t_header_img {
+            width: 100px;
+            height: 100px;
+            margin-bottom: 10px;
+          }
+          > .h_t_c_t_l_t_title {
+            font-size: 16px;
+            font-weight: 700;
+            line-height: 20px;
+            text-align: center;
+            margin-bottom: 4px;
+          }
+          > .h_t_c_t_l_t_line {
+            width: 70px;
+            height: 32px;
+            margin-bottom: 14px;
+          }
+        }
+        > .h_t_c_t_l_text {
+          > p {
+            font-size: 14px;
+            line-height: 20px;
+            position: relative;
+            padding-left: 16px;
+            margin-bottom: 16px;
+            &:before {
+              position: absolute;
+              left: 0;
+              top: 8px;
+              content: '';
+              display: block;
+              width: 4px;
+              height: 4px;
+              border-radius: 4px;
+              background-color: #fff;
+            }
+            > span {
+              border-bottom: 1px solid #f2f2f2;
+            }
+          }
+        }
+        &.h_t_c_t_li_william {
+          > .h_t_c_t_l_top {
+            > .h_t_c_t_l_t_title {
+              width: 92px;
+            }
+          }
+        }
+        &.h_t_c_t_li_lead {
+          > .h_t_c_t_l_top {
+            padding-top: 0;
+            > .h_t_c_t_l_t_header_img {
+              width: 126px;
+              height: 136px;
+              margin-bottom: 24px;
+            }
+            > .h_t_c_t_l_t_title {
+              width: 106px;
+            }
+          }
+        }
+        &.h_t_c_t_li_raymondcoder {
+          > .h_t_c_t_l_top {
+            > .h_t_c_t_l_t_title {
+              width: 140px;
+            }
+          }
+        }
+      }
+    }
+    > .h_t_c_logo {
+      display: flex;
+      justify-content: right;
+      margin-right: 120px;
+      margin-bottom: 50px;
+      > img {
+        width: 174px;
+        height: 130px;
+      }
+    }
+  }
+}

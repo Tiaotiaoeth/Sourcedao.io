@@ -1,0 +1,27 @@
+{
+    "parser": "@typescript-eslint/parser",
+    "plugins": [
+        "@typescript-eslint/eslint-plugin",
+        "react-hooks"
+    ],
+    "extends": [
+        "plugin:@typescript-eslint/recommended"
+    ],
+    "rules": {
+        // 关闭声明未使用的变量规则
+        "prettier/prettier": 0,
+        "semi": ["error", "never"],
+        "indent": ["error", 2, { "SwitchCase": 1 }],
+        "comma-spacing": [2, { "before": false, "after": true }],
+        "no-console": 2,
+        "no-useless-catch": 0,
+        "no-case-declarations": 0,
+        "no-unused-vars": 0,
+        "react-hooks/rules-of-hooks": "error", // 检查 Hook 的规则
+        // "react-hooks/exhaustive-deps": "warn", // 检查 effect 的依赖
+        "@typescript-eslint/no-explicit-any": 2, // 不能使用any类型的
+        "@typescript-eslint/no-var-requires": 2, // 不能使用var设置变量
+        "@typescript-eslint/no-unused-vars": 2, // 不能有定义但未使用的变量
+        "@typescript-eslint/no-non-null-assertion": 0 // 不能有定义但未使用的变量
+    }
+}
