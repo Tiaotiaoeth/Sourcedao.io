@@ -6,10 +6,8 @@ import "./QuestionRepo.sol";
  * 生成一次考试的合约。
  */
 contract Examination {
-    address public owner;     // 保存合约的拥有者，只有拥有者可以修改questionRepo和questionSizeMap
-    mapping(uint8 => mapping(uint8 => uint8)) questionSizeMap; // 保存对应考试类型、难度的考题数量
-
-    QuestionRepo questionRepo = new QuestionRepo();
+    address owner;     // 保存合约的拥有者，只有拥有者可以修改questionRepo和questionSizeMap
+    mapping(uint8 => mapping(uint8 => uint)) questionSizeMap; // 保存对应考试类型、难度的考题数量
 
     event GenerateExamination(address indexed sender, uint8 qtype, uint8 qlevel);
 
@@ -19,27 +17,32 @@ contract Examination {
 
     // 只有合约拥有者可以设置每种考试的题目数量，
     // 每种考试由考试类型和难度决定
-    function setSizeMap(uint8 _type, uint8 _level, uint8 _size) public {
-        require(owner == msg.sender);
+    function setSizeMap(uint8 _type, uint8 _level, uint _size) public onlyOwner {
         questionSizeMap[_type][_level] = _size;
     }
 
     // TODO：边界检查
-    function getSize(uint8 _type, uint8 _level) private view returns (uint8) {
+    function getSize(uint8 _type, uint8 _level) private view returns (uint) {
         return questionSizeMap[_type][_level];
     }
 
     // 生成一次测试
-    function genExam(uint8 _type, uint8 _level) public returns (string[] memory, uint256[] memory) {
-        uint8 size = getSize(_type, _level);
-        string[] memory questions;
-        uint256[] memory indices;
+    function genExam(uint8 _type, uint8 _level) public returns (string[] memory) {
+        uint size = getSize(_type, _level);
+        QuestionRepo questionRepo = new QuestionRepo();
+
+        string[] memory questions = new string[](size);
         for (uint i = 0; i < size; i++) {
-            (indices[i], questions[i]) = questionRepo.randQuestionHash(_type, _level);
+            questions[i] = questionRepo.randQuestion(_type, _level);
         }
 
         emit GenerateExamination(msg.sender, _type, _level);
 
-        return (questions, indices);
+        return questions;
+    }
+
+    modifier onlyOwner() {
+        require(msg.sender == owner);
+        _;
     }
 }
