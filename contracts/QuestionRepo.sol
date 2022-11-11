@@ -1,11 +1,12 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.13;
+pragma solidity ^0.8.17;
 
 import "./interfaces/IQuestionRepo.sol";
 
 contract QuestionRepo is IQuestionRepo {
     struct SourceQuestion {
         uint8 standardAnswer;   // 保存考题的正确答案
+        uint8 level;            // 保存考题的难度
         string content;         // 保存考题的IPFS hash
         address author;         // 保存考题的出题人
     }
@@ -14,21 +15,30 @@ contract QuestionRepo is IQuestionRepo {
 
     mapping(uint8 => mapping(uint8 => string[])) private questions;
     mapping(string => SourceQuestion) private hashToQuestion;
+    mapping(uint8 => uint8) private levelToScore;
 
     constructor() {
         owner = msg.sender;
     }
 
+    // 设置不同难度题目的分值
+    function setLevelScore(uint8 _level, uint8 _score) external onlyOwner {
+        levelToScore[_level] = _score;
+
+        emit SetLevelScore(_level, _score);
+    }
+
     // 添加试题，目前只能增加，不能修改
     function addQuestion(
-        address _author, 
-        uint8 _type, 
-        uint8 _level, 
-        string memory _ipfshash, 
+        address _author,
+        uint8 _type,
+        uint8 _level,
+        string memory _ipfshash,
         uint8 _standardAnswer
     ) external onlyOwner {
         SourceQuestion storage q = hashToQuestion[_ipfshash];
         q.standardAnswer = _standardAnswer;
+        q.level = _level;
         q.content = _ipfshash;
         q.author = _author;
 
@@ -48,6 +58,11 @@ contract QuestionRepo is IQuestionRepo {
 
     function getStandardAnswer(string memory _qhash) external view returns (uint8) {
         return hashToQuestion[_qhash].standardAnswer;
+    }
+
+    // 题目的分值
+    function getScore(string memory _qhash) external view returns (uint8) {
+        return levelToScore[hashToQuestion[_qhash].level];
     }
 
     modifier onlyOwner() {

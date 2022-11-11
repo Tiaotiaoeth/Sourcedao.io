@@ -1,11 +1,14 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.13;
-import "./QuestionRepo.sol";
+pragma solidity ^0.8.17;
+
+import "./interfaces/IQuestionRepo.sol";
+import "./interfaces/IExamination.sol";
+import "@openzeppelin/contracts/utils/Counters.sol";
 
 /**
  * 生成一次考试的合约。
  */
-contract Examination {
+contract Examination is IExamination {
     address owner;     // 保存合约的拥有者，只有拥有者可以修改questionRepo和questionSizeMap
 
     mapping(uint8 => mapping(uint8 => uint)) private _questionSizeMap; // 保存对应考试类型、难度的考题数量
@@ -15,11 +18,6 @@ contract Examination {
     using Counters for Counters.Counter;
     Counters.Counter private _randSeed;
     IQuestionRepo _questionRepo;
-
-    event SetQuestionRepo(address repoAddr);
-    event SetExaminationSize(uint8 qtype, uint8 qlevel, uint size);
-    event SelectQuestion(address indexed author, string qhash);
-    event GenerateExamination(address indexed sender, uint8 qtype, uint8 qlevel, uint size);
 
     constructor() {
         owner = msg.sender;
