@@ -7,38 +7,65 @@ import "./QuestionRepo.sol";
  */
 contract Examination {
     address owner;     // 保存合约的拥有者，只有拥有者可以修改questionRepo和questionSizeMap
-    mapping(uint8 => mapping(uint8 => uint)) questionSizeMap; // 保存对应考试类型、难度的考题数量
 
-    event GenerateExamination(address indexed sender, uint8 qtype, uint8 qlevel);
+    mapping(uint8 => mapping(uint8 => uint)) private _questionSizeMap; // 保存对应考试类型、难度的考题数量
+    mapping(string => mapping(string => bool)) private _idToExamDedup; // 试卷上链，去重
+    mapping(string => string[]) private _idToExamQuestions;            // 试卷上链，试题
+
+    using Counters for Counters.Counter;
+    Counters.Counter private _randSeed;
+    IQuestionRepo _questionRepo;
+
+    event SetQuestionRepo(address repoAddr);
+    event SetExaminationSize(uint8 qtype, uint8 qlevel, uint size);
+    event SelectQuestion(address indexed author, string qhash);
+    event GenerateExamination(address indexed sender, uint8 qtype, uint8 qlevel, uint size);
 
     constructor() {
         owner = msg.sender;
     }
 
-    // 只有合约拥有者可以设置每种考试的题目数量，
-    // 每种考试由考试类型和难度决定
-    function setSizeMap(uint8 _type, uint8 _level, uint _size) public onlyOwner {
-        questionSizeMap[_type][_level] = _size;
+    function setQuestionRepo(address repoAddr) external onlyOwner {
+        _questionRepo = IQuestionRepo(repoAddr);
+
+        emit SetQuestionRepo(repoAddr);
     }
 
-    // TODO：边界检查
+    // 只有合约拥有者可以设置每种考试的题目数量，
+    // 每种考试由考试类型和难度决定
+    function setSizeMap(uint8 _type, uint8 _level, uint _size) external onlyOwner {
+        _questionSizeMap[_type][_level] = _size;
+
+        emit SetExaminationSize(_type, _level, _size);
+    }
+
     function getSize(uint8 _type, uint8 _level) private view returns (uint) {
-        return questionSizeMap[_type][_level];
+        return _questionSizeMap[_type][_level];
+    }
+
+    function getExam(string memory _examId) external view returns (string[] memory) {
+        string[] memory questions = _idToExamQuestions[_examId];
+        return questions;
     }
 
     // 生成一次测试
-    function genExam(uint8 _type, uint8 _level) public returns (string[] memory) {
+    function genExam(string memory _examId, uint8 _type, uint8 _level) external {
         uint size = getSize(_type, _level);
-        QuestionRepo questionRepo = new QuestionRepo();
 
-        string[] memory questions = new string[](size);
-        for (uint i = 0; i < size; i++) {
-            questions[i] = questionRepo.randQuestion(_type, _level);
+        mapping(string => bool) storage dedup = _idToExamDedup[_examId];
+        string[] storage questions = _idToExamQuestions[_examId];
+        for (uint i = 0; i < size;) {
+            _randSeed.increment();
+            uint256 randInt = _randSeed.current();
+            string memory qhash = _questionRepo.randQuestion(_type, _level, randInt);
+            if (!dedup[qhash]) {
+                dedup[qhash] = true;
+                questions.push(qhash);
+                i++;
+            }
         }
 
-        emit GenerateExamination(msg.sender, _type, _level);
-
-        return questions;
+        emit GenerateExamination(msg.sender, _type, _level, size);
     }
 
     modifier onlyOwner() {
