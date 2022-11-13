@@ -1,0 +1,10 @@
+[package]
+name = "Sourcedao"
+version = "0.0.1"
+
+[dependencies]
+Sui = { local = "../../../crates/sui-framework" }
+
+[addresses]
+sourcedao = "0x0"
+sui = "0x2"
