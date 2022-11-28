@@ -1,66 +1,59 @@
-module sourcedao::question_repo {
-    /*struct SourceQuestion {
-        uint8 standardAnswer;   // 保存考题的正确答案
-        uint8 level;            // 保存考题的难度
-        string content;         // 保存考题的IPFS hash
-        address author;         // 保存考题的出题人
-    }*/
+// Copyright (c) Sourcedao
+// SPDX-License-Identifier: MIT
+
+module sourcedao_move::question_repo {
+    use std::string::{String};
+    use std::vector;
+    use sui::object::{ID, UID};
+    use sui::transfer;
+    use sui::tx_context::{TxContext};
+
+    // question data struction
     struct SourceQuestion has key, store {
-        standardAnswer: u8,
+        id: UID,
+        standard_answer: u8,
+        score: u8,
+        content: String,
+        author: String
+    }
+
+    struct QuestionRepoOwner has key, store {
+        id: UID,
+        repo_id: ID
+    }
+
+    // question repository
+    struct QuestionsOracle has key {
+        id: UID,
+        type: u8,
         level: u8,
-        content: string,
-        author: string,
+        questions: vector<SourceQuestion>,
     }
 
-    /*
-    address owner;
-    mapping(uint8 => mapping(uint8 => string[])) private questions;
-    mapping(string => SourceQuestion) private hashToQuestion;
-    mapping(uint8 => uint8) private levelToScore;
-    */
-    struct QuestionRepo has key, store {
-        questions: ,
-        hashToQuestion: ,
-        levelToScore: ,
+    public fun new(type: u8, level: u8, ctx: &mut TxContext): QuestionRepoOwner{
+        let id = object::new(ctx);
+        let repo_id = object::uid_to_inner(&id);
+        let question_repo = QuestionsOracle {id, type, level, vector::empty()};
+        transfer::share_object(question_repo);
+
+        QuestionRepoOwner {id: object::new(ctx), repo_id}
     }
 
-    // constructor() {
-    //    owner = msg.sender;
-    // }
-    fun init() {
+    /* create a new repository */
+    public entry fun create_repo(type: u8, level: u8, ctx: &mut TxContext): QuestionRepoOwner {
+        let owner = new(type, level, ctx);
+
+        transfer::transfer(owner, tx_context::sender(ctx));
     }
 
-    // 设置不同难度题目的分值
-    /*function setLevelScore(uint8 _level, uint8 _score) external onlyOwner {
-        levelToScore[_level] = _score;
+    public fun add_question(repo: &mut QuestionsOracle, owner: QuestionRepoOwner,
+            author: String, ipfshash: String, standard_answer: u8, score: u8,
+            ctx: &mut TxContext) {
+        only_owner(repo, owner);
 
-        emit SetLevelScore(_level, _score);
-    }*/
-    public fun set_level_score() {
-
-    }
-
-    // 添加试题，目前只能增加，不能修改
-    /* 
-    function addQuestion(
-        address _author,
-        uint8 _type,
-        uint8 _level,
-        string memory _ipfshash,
-        uint8 _standardAnswer
-    ) external onlyOwner {
-        SourceQuestion storage q = hashToQuestion[_ipfshash];
-        q.standardAnswer = _standardAnswer;
-        q.level = _level;
-        q.content = _ipfshash;
-        q.author = _author;
-
-        questions[_type][_level].push(_ipfshash);
-        emit AddQuestion(_author, _type, _level, _ipfshash);
-    }
-    */
-    public fun add_question() {
-
+        let id = object::new(ctx);
+        let question = SourceQuestion {id, standard_answer, score, content: ipfshash, author };
+        vector::push_back(&mut repo.questions, question);
     }
 
     /*
@@ -72,33 +65,21 @@ module sourcedao::question_repo {
 
         return qhash;
     }*/
-    public fun rand_question() {
+    public fun rand_question(repo: &QuestionsOracle): vector<SourceQuestion> {
 
     }
 
-    
-    /*
-    function getStandardAnswer(string memory _qhash) external view returns (uint8) {
-        return hashToQuestion[_qhash].standardAnswer;
-    }*/
-    public fun get_standard_answer() {
-
+    public fun get_standard_answer(question: &SourceQuestion): u8 {
+        question.standard_answer
     }
 
-    // 题目的分值
-    /*
-    function getScore(string memory _qhash) external view returns (uint8) {
-        return levelToScore[hashToQuestion[_qhash].level];
-    }*/
-    public fun get_score() {
-
+    public fun get_score(question: &SourceQuestion): u8 {
+        question.score
     }
 
-    /*
-    modifier onlyOwner() {
-        require(msg.sender == owner);
-        _;
-    }*/
+    fun only_owner(repo: &QuestionsOracle, owner: &QuestionRepoOwner) {
+        assert!(object::borrow_id(repo) == &owner.repo_id, ErrOwnerOnly);
+    }
 }
 
 
