@@ -74,6 +74,6 @@ contract Reward is Ownable {
 
     // 查询SBT的元信息
     function getSBTMeta(uint256 tokenId) external view returns (SourceDaoReward memory) {
-        return idToMeta[tokenId];
+        return idToRewardMeta[tokenId];
     }
 }

@@ -58,7 +58,7 @@ describe("Reward", function () {
 
     //// 初始化SBT合约
     const SBT = await ethers.getContractFactory("SBT");
-    const sbt = await SBT.deploy();
+    const sbt = await SBT.deploy("name", "st", "");
     await sbt.deployed();
     console.log('SBT deployed at:'+ sbt.address)
     const Reward = await ethers.getContractFactory("Reward");
