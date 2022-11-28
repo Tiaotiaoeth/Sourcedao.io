@@ -55,7 +55,7 @@ contract Reward {
         uint8[] calldata _answers,
         uint8 _type, 
         uint8 _level, 
-    ) public {
+    ) external {
         uint8 score = checker.getScore(_examId, _answers);
         uint8 passLine = passLines[_type][_level];
         if (score >= passLine) {
