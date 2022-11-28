@@ -1,20 +1,20 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.17;
 import "@openzeppelin/contracts/utils/Counters.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 import "./CheckAnswer.sol";
 import "./SBT.sol";
 
-contract Reward {
+contract Reward is Ownable {
     struct SourceDaoReward {
         uint256 id;         // SBT id
-        uint8 level;        // 考试的难度
-        uint8 type;         // 考试的类型
+        uint8 qlevel;       // 考试的难度
+        uint8 qtype;        // 考试的类型
         uint16 score;       // 考试分数
-        uint8 time;         // 考试时间，使用区块时间
+        uint time;          // 考试时间，使用区块时间
         address owner;      // 考试人
     }
 
-    address owner;
     mapping(uint8 => mapping(uint8 => uint8)) passLines;
     // 每个SBT的元信息
     mapping(uint256 => SourceDaoReward) idToRewardMeta;
@@ -29,9 +29,6 @@ contract Reward {
     event SetSBTContract(address sbtAddr);
     event RewardEvent(address indexed sender, uint8 qtype, uint8 qlevel, uint8 score, bool pass);
 
-    constructor() {
-        owner = msg.sender;
-    }
 
     function setSBTContract(address sbtAddr) external onlyOwner {
         sbt = SBT(sbtAddr);
@@ -45,8 +42,7 @@ contract Reward {
         emit SetCheckAnswer(checkerAddr);
     }
 
-    function setPassLine(uint8 _type, uint8 _level, uint8 _score) external {
-        require(owner == msg.sender);
+    function setPassLine(uint8 _type, uint8 _level, uint8 _score) external onlyOwner {
         passLines[_type][_level] = _score;
     }
 
@@ -54,7 +50,7 @@ contract Reward {
         string memory _examId, 
         uint8[] calldata _answers,
         uint8 _type, 
-        uint8 _level, 
+        uint8 _level
     ) external {
         uint8 score = checker.getScore(_examId, _answers);
         uint8 passLine = passLines[_type][_level];
@@ -62,12 +58,12 @@ contract Reward {
             idCounter.increment();
             uint256 tokenId = idCounter.current();
 
-            SourceDaoReward r = idToRewardMeta[tokenId];
+            SourceDaoReward storage r = idToRewardMeta[tokenId];
             r.id = tokenId;
-            r.level = _level;
-            r.type = _type;
+            r.qlevel = _level;
+            r.qtype = _type;
             r.score = score;
-            r.time = now;
+            r.time = block.timestamp;
             r.owner = msg.sender;
 
             sbt.safeMint(msg.sender, tokenId);
@@ -77,7 +73,7 @@ contract Reward {
     }
 
     // 查询SBT的元信息
-    function getSBTMeta(uint256 tokenId) external view returns (string) {
+    function getSBTMeta(uint256 tokenId) external view returns (SourceDaoReward memory) {
         return idToMeta[tokenId];
     }
 }

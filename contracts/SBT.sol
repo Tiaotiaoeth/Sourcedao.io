@@ -8,14 +8,14 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "./interfaces/IERC5192.sol";
 
 contract SBT is ERC721, ERC721Enumerable, Ownable {
-    string private baseURI;
+    string private baseURI_;
 
-    constructor(string memory _name, string memory _symbol, string memory _baseURI) ERC721(_name, _symbol) {
-        baseURI = _baseURI;
+    constructor(string memory _name, string memory _symbol, string memory _pBaseURI) ERC721(_name, _symbol) {
+        baseURI_ = _pBaseURI;
     }
 
     function _baseURI() internal view override returns (string memory) {
-        return baseURI;
+        return baseURI_;
     }
 
     // 每个SBT的locked状态
@@ -86,11 +86,11 @@ contract SBT is ERC721, ERC721Enumerable, Ownable {
         );
     }
 
-    function _beforeTokenTransfer(address from, address to, uint256 tokenId)
+    function _beforeTokenTransfer(address from, address to, uint256 tokenId, uint256 batchSize)
         internal
         override(ERC721, ERC721Enumerable)
     {
-        super._beforeTokenTransfer(from, to, tokenId);
+        super._beforeTokenTransfer(from, to, tokenId, batchSize);
     }
 
     function supportsInterface(bytes4 _interfaceId)
