@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: MIT
+// Copyright (c) Sourcedao
 pragma solidity ^0.8.17;
 
+import "@openzeppelin/contracts/access/Ownable.sol";
 import "./interfaces/IQuestionRepo.sol";
 import "./interfaces/IExamination.sol";
 import "./Examination.sol";
@@ -8,9 +10,7 @@ import "./Examination.sol";
 /**
  * 阅卷
  */
-contract CheckAnswer {
-    address owner;     // 保存合约的拥有者
-
+contract CheckAnswer is Ownable {
     mapping(uint8 => mapping(uint8 => uint)) private _questionSizeMap; // 保存对应考试类型、难度的考题数量
     mapping(string => mapping(string => bool)) private _idToExamDedup; // 试卷上链，去重
     mapping(string => string[]) private _idToExamQuestions;            // 试卷上链，试题
@@ -20,10 +20,6 @@ contract CheckAnswer {
 
     event SetQuestionRepo(address repoAddr);
     event SetExamination(address examAddr);
-
-    constructor() {
-        owner = msg.sender;
-    }
 
     function setQuestionRepo(address repoAddr) external onlyOwner {
         _questionRepo = IQuestionRepo(repoAddr);
@@ -54,10 +50,5 @@ contract CheckAnswer {
             }
         }
         return score;
-    }
-
-    modifier onlyOwner() {
-        require(msg.sender == owner);
-        _;
     }
 }

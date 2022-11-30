@@ -13,11 +13,13 @@ contract Reward is Ownable {
         uint16 score;       // 考试分数
         uint time;          // 考试时间，使用区块时间
         address owner;      // 考试人
+        string examId;      // 试卷ID
     }
 
     mapping(uint8 => mapping(uint8 => uint8)) passLines;
     // 每个SBT的元信息
-    mapping(uint256 => SourceDaoReward) idToRewardMeta;
+    mapping(uint256 => SourceDaoReward) tokenIdToRewardMeta;
+    mapping(string => uint256) examIdToTokenId;
 
     using Counters for Counters.Counter;
     Counters.Counter private idCounter;
@@ -52,19 +54,23 @@ contract Reward is Ownable {
         uint8 _type, 
         uint8 _level
     ) external {
+        require(examIdToTokenId[_examId] == 0, "ExamMintYet");
         uint8 score = checker.getScore(_examId, _answers);
         uint8 passLine = passLines[_type][_level];
+        require(passLine > 0, "passline");
         if (score >= passLine) {
             idCounter.increment();
             uint256 tokenId = idCounter.current();
 
-            SourceDaoReward storage r = idToRewardMeta[tokenId];
+            examIdToTokenId[_examId] = tokenId;
+            SourceDaoReward storage r = tokenIdToRewardMeta[tokenId];
             r.id = tokenId;
             r.qlevel = _level;
             r.qtype = _type;
             r.score = score;
             r.time = block.timestamp;
             r.owner = msg.sender;
+            r.examId = _examId;
 
             sbt.safeMint(msg.sender, tokenId);
         }
@@ -73,7 +79,11 @@ contract Reward is Ownable {
     }
 
     // 查询SBT的元信息
-    function getSBTMeta(uint256 tokenId) external view returns (SourceDaoReward memory) {
-        return idToRewardMeta[tokenId];
+    function getSBTMeta(uint256 _tokenId) external view returns (SourceDaoReward memory) {
+        return tokenIdToRewardMeta[_tokenId];
+    }
+
+    function getTokenId(string memory _examId) external view returns (uint256) {
+        return examIdToTokenId[_examId];
     }
 }

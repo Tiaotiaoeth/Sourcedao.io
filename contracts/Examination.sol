@@ -2,16 +2,15 @@
 // Copyright (c) Sourcedao
 pragma solidity ^0.8.17;
 
+import "@openzeppelin/contracts/utils/Counters.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 import "./interfaces/IQuestionRepo.sol";
 import "./interfaces/IExamination.sol";
-import "@openzeppelin/contracts/utils/Counters.sol";
 
 /**
  * 生成一次考试的合约。
  */
-contract Examination is IExamination {
-    address owner;     // 保存合约的拥有者，只有拥有者可以修改questionRepo和questionSizeMap
-
+contract Examination is IExamination, Ownable {
     mapping(uint8 => mapping(uint8 => uint)) private _questionSizeMap; // 保存对应考试类型、难度的考题数量
     mapping(string => mapping(string => bool)) private _idToExamDedup; // 试卷上链，去重
     mapping(string => string[]) private _idToExamQuestions;            // 试卷上链，试题
@@ -19,10 +18,6 @@ contract Examination is IExamination {
     using Counters for Counters.Counter;
     Counters.Counter private _randSeed;
     IQuestionRepo _questionRepo;
-
-    constructor() {
-        owner = msg.sender;
-    }
 
     function setQuestionRepo(address repoAddr) external onlyOwner {
         _questionRepo = IQuestionRepo(repoAddr);
@@ -65,10 +60,5 @@ contract Examination is IExamination {
         }
 
         emit GenerateExamination(msg.sender, _type, _level, size);
-    }
-
-    modifier onlyOwner() {
-        require(msg.sender == owner);
-        _;
     }
 }

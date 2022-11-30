@@ -2,9 +2,10 @@
 // Copyright (c) Sourcedao
 pragma solidity ^0.8.17;
 
+import "@openzeppelin/contracts/access/Ownable.sol";
 import "./interfaces/IQuestionRepo.sol";
 
-contract QuestionRepo is IQuestionRepo {
+contract QuestionRepo is IQuestionRepo, Ownable {
     struct SourceQuestion {
         uint8 standardAnswer;   // 保存考题的正确答案
         uint8 level;            // 保存考题的难度
@@ -12,15 +13,9 @@ contract QuestionRepo is IQuestionRepo {
         address author;         // 保存考题的出题人
     }
 
-    address owner;
-
     mapping(uint8 => mapping(uint8 => string[])) private questions;
     mapping(string => SourceQuestion) private hashToQuestion;
     mapping(uint8 => uint8) private levelToScore;
-
-    constructor() {
-        owner = msg.sender;
-    }
 
     // 设置不同难度题目的分值
     function setLevelScore(uint8 _level, uint8 _score) external onlyOwner {
@@ -64,10 +59,5 @@ contract QuestionRepo is IQuestionRepo {
     // 题目的分值
     function getScore(string memory _qhash) external view returns (uint8) {
         return levelToScore[hashToQuestion[_qhash].level];
-    }
-
-    modifier onlyOwner() {
-        require(msg.sender == owner);
-        _;
     }
 }
