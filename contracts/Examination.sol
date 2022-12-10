@@ -11,6 +11,23 @@ import "./interfaces/IExamination.sol";
  * 生成一次考试的合约。
  */
 contract Examination is IExamination, Ownable {
+    // 考试类型，在链上存储使用typeId，以节省存储开销
+    struct ExamType {
+        uint8 typeId;
+        string name;
+    }
+    
+    // 考试级别，在链上存储使用levelId，以节省存储开销
+    struct ExamLevel {
+        uint8 levelId;
+        string name;
+    }
+    
+    ExamType[] private _examTypes;
+    ExamLevel[] private _examLevels;
+    // 考试时间，由考试类型和考试级别决定
+    mapping(uint8 => mapping(uint8 => uint16)) private _examDuration; 
+
     mapping(uint8 => mapping(uint8 => uint)) private _questionSizeMap; // 保存对应考试类型、难度的考题数量
     mapping(string => mapping(string => bool)) private _idToExamDedup; // 试卷上链，去重
     mapping(string => string[]) private _idToExamQuestions;            // 试卷上链，试题

@@ -5,6 +5,7 @@ pragma solidity ^0.8.17;
 interface IExamination {
     event SetQuestionRepo(address repoAddr);
     event SetExaminationSize(uint8 qtype, uint8 qlevel, uint size);
+    event SetExaminationDuration(uint8 qtype, uint8 qlevel, uint16 minutes);
     event GenerateExamination(address indexed sender, uint8 qtype, uint8 qlevel, uint size);
 
     function setQuestionRepo(address repoAddr) external;
