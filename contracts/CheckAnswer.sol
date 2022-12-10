@@ -11,7 +11,7 @@ import "./interfaces/IExamination.sol";
  */
 contract CheckAnswer is Ownable {
     mapping(uint8 => mapping(uint8 => uint)) private _questionSizeMap; // 保存对应考试类型、难度的考题数量
-    mapping(string => string[]) private _idToExamAnswers;            // 试卷上链，用户答案
+    mapping(string => uint8[]) private _idToExamAnswers;            // 试卷上链，用户答案
 
     IQuestionRepo _questionRepo;
     IExamination _examination;
