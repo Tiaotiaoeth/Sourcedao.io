@@ -19,7 +19,10 @@ contract Reward is Ownable {
     mapping(uint8 => mapping(uint8 => uint8)) passLines;
     // 每个SBT的元信息
     mapping(uint256 => SourceDaoReward) tokenIdToRewardMeta;
+    // 每次考试最多获得一枚SBT
     mapping(string => uint256) examIdToTokenId;
+    // 每个用户钱包地址获得的SBT列表
+    mapping(address => uint256[]) balanceList;
 
     using Counters for Counters.Counter;
     Counters.Counter private idCounter;
@@ -73,6 +76,7 @@ contract Reward is Ownable {
             r.examId = _examId;
 
             sbt.safeMint(msg.sender, tokenId);
+            balanceList[msg.sender].push(tokenId);
         }
         
         emit RewardEvent(msg.sender, _type, _level, score, score >= passLine);
@@ -83,7 +87,13 @@ contract Reward is Ownable {
         return tokenIdToRewardMeta[_tokenId];
     }
 
+    // 查询考试的SBT id
     function getTokenId(string memory _examId) external view returns (uint256) {
         return examIdToTokenId[_examId];
+    }
+
+    // 查询一个用户获得的所有SBT id列表
+    function getTokensByUser(address user) external view returns (uint256[] memory) {
+        return balanceList[user];
     }
 }

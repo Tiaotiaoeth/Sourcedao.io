@@ -5,15 +5,13 @@ pragma solidity ^0.8.17;
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "./interfaces/IQuestionRepo.sol";
 import "./interfaces/IExamination.sol";
-import "./Examination.sol";
 
 /**
  * 阅卷
  */
 contract CheckAnswer is Ownable {
     mapping(uint8 => mapping(uint8 => uint)) private _questionSizeMap; // 保存对应考试类型、难度的考题数量
-    mapping(string => mapping(string => bool)) private _idToExamDedup; // 试卷上链，去重
-    mapping(string => string[]) private _idToExamQuestions;            // 试卷上链，试题
+    mapping(string => string[]) private _idToExamAnswers;            // 试卷上链，用户答案
 
     IQuestionRepo _questionRepo;
     IExamination _examination;
@@ -41,6 +39,7 @@ contract CheckAnswer is Ownable {
 
         string[] memory questsions = _examination.getExam(_examId);
         require(questsions.length == _answers.length);
+        _idToExamAnswers[_examId] = _answers;
 
         for (uint i = 0; i < _answers.length; i++) {
             string memory qhash = questsions[i];
@@ -50,5 +49,9 @@ contract CheckAnswer is Ownable {
             }
         }
         return score;
+    }
+
+    function getAnswers(string memory _examId) external view returns (uint8[] memory) {
+        return _idToExamAnswers[_examId];
     }
 }

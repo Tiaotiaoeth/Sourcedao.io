@@ -44,6 +44,8 @@ contract Examination is IExamination, Ownable {
 
     // 生成一次测试
     function genExam(string memory _examId, uint8 _type, uint8 _level) external {
+        require(_idToExamQuestions[_examId] == 0, "ExamGeneratedYet");
+
         uint size = getSize(_type, _level);
 
         mapping(string => bool) storage dedup = _idToExamDedup[_examId];
