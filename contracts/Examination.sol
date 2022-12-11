@@ -11,20 +11,10 @@ import "./interfaces/IExamination.sol";
  * 生成一次考试的合约。
  */
 contract Examination is IExamination, Ownable {
-    // 考试类型，在链上存储使用typeId，以节省存储开销
-    struct ExamType {
-        uint8 typeId;
-        string name;
-    }
-    
-    // 考试级别，在链上存储使用levelId，以节省存储开销
-    struct ExamLevel {
-        uint8 levelId;
-        string name;
-    }
-    
-    ExamType[] private _examTypes;
-    ExamLevel[] private _examLevels;
+    uint8[] private _examTypeIds;
+    uint8[] private _examLevelIds;
+    mapping(uint8 => ExamType) private _examTypes;
+    mapping(uint8 => ExamLevel) private _examLevels;
     // 考试时间，由考试类型和考试级别决定
     mapping(uint8 => mapping(uint8 => uint16)) private _examDuration; 
 
@@ -40,6 +30,34 @@ contract Examination is IExamination, Ownable {
         _questionRepo = IQuestionRepo(repoAddr);
 
         emit SetQuestionRepo(repoAddr);
+    }
+
+    function addExaminationType(uint8 qtype, string memory name) external onlyOwner {
+        require(_examTypes[qtype] == 0, "DupType");
+
+        ExamType storage eType = _examTypes[qtype];
+        eType.typeId = qtype;
+        eType.name = name;
+        _examTypeIds.push(qtype);
+
+        emit AddExaminationType(qtype, name);
+    }
+
+    function addExaminationLevel(uint8 qlevel, string memory name) external onlyOwner {
+        require(_examLevels[qlevel] == 0, "DupLevel");
+
+        ExamLevel storage eLevel = _examLevels[qlevel];
+        eLevel.levelId = qlevel;
+        eLevel.name = name;
+        _examLevelIds.push(qlevel);
+
+        emit AddExaminationLevel(qlevel, name);
+    }
+
+    function setExaminationDuration(uint8 qtype, uint8 qlevel, uint16 qminutes) external onlyOwner {
+        _examDuration[qtype][qlevel] = qminutes;
+
+        emit SetExaminationDuration(qtype, qlevel, qminutes);
     }
 
     // 只有合约拥有者可以设置每种考试的题目数量，
@@ -79,5 +97,27 @@ contract Examination is IExamination, Ownable {
         }
 
         emit GenerateExamination(msg.sender, _type, _level, size);
+    }
+
+    function listTypes() external view returns (ExamType[] memory) {
+        uint len = _examTypeIds.length;
+        ExamType[] types = new ExamType[](len);
+        for (uint i=0; i < len; i++) {
+            types[i] = _examTypes[_examTypeIds[i]];
+        }
+        return types;
+    }
+
+    function listLevels() external view returns (ExamLevel[] memory) {
+        uint len = _examLevelIds.length;
+        ExamLevel[] levels = new ExamLevel[](len);
+        for (uint i=0; i < len; i++) {
+            levels[i] = _examTypes[_examLevelIds[i]];
+        }
+        return levels;
+    }
+    
+    function getExaminationDuration(uint8 qtype, uint8 qlevel) external view returns (uint16) {
+        return _examDuration[qtype][qlevel];
     }
 }

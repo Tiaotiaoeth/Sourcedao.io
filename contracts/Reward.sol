@@ -25,6 +25,7 @@ contract Reward is Ownable {
     mapping(address => uint256[]) balanceList;
 
     using Counters for Counters.Counter;
+    // 有效的tokenId从1开始
     Counters.Counter private idCounter;
 
     CheckAnswer checker;
@@ -83,12 +84,19 @@ contract Reward is Ownable {
     }
 
     // 查询SBT的元信息
-    function getSBTMeta(uint256 _tokenId) external view returns (SourceDaoReward memory) {
+    function getSBTMeta(uint256 _tokenId) public view returns (SourceDaoReward memory) {
         return tokenIdToRewardMeta[_tokenId];
     }
 
+    function getSBTMetaByExam(string memory _examId) external view returns (SourceDaoReward memory) {
+        uint256 _tokenId = getTokenId(_examId);
+        return getSBTMeta(_tokenId);
+    }
+
     // 查询考试的SBT id
-    function getTokenId(string memory _examId) external view returns (uint256) {
+    function getTokenId(string memory _examId) public view returns (uint256) {
+        require(examIdToTokenId[_examId] == 0, "NoSBT");
+        
         return examIdToTokenId[_examId];
     }
 
