@@ -19,8 +19,8 @@ contract Examination is IExamination, Ownable {
     mapping(uint8 => mapping(uint8 => uint16)) private _examDuration; 
 
     mapping(uint8 => mapping(uint8 => uint)) private _questionSizeMap; // 保存对应考试类型、难度的考题数量
-    mapping(string => mapping(string => bool)) private _idToExamDedup; // 试卷上链，去重
-    mapping(string => string[]) private _idToExamQuestions;            // 试卷上链，试题
+    mapping(string => mapping(string => bool)) private _idToExamDedup; // 试卷上链，试题去重
+    mapping(string => string[]) private _idToExamQuestions;            // 试卷上链，试题列表
 
     using Counters for Counters.Counter;
     Counters.Counter private _randSeed;
@@ -33,7 +33,7 @@ contract Examination is IExamination, Ownable {
     }
 
     function addExaminationType(uint8 qtype, string memory name) external onlyOwner {
-        require(_examTypes[qtype] == 0, "DupType");
+        require(_examTypes[qtype].typeId == 0, "DupType");
 
         ExamType storage eType = _examTypes[qtype];
         eType.typeId = qtype;
@@ -44,7 +44,7 @@ contract Examination is IExamination, Ownable {
     }
 
     function addExaminationLevel(uint8 qlevel, string memory name) external onlyOwner {
-        require(_examLevels[qlevel] == 0, "DupLevel");
+        require(_examLevels[qlevel].levelId == 0, "DupLevel");
 
         ExamLevel storage eLevel = _examLevels[qlevel];
         eLevel.levelId = qlevel;
@@ -79,7 +79,7 @@ contract Examination is IExamination, Ownable {
 
     // 生成一次测试
     function genExam(string memory _examId, uint8 _type, uint8 _level) external {
-        require(_idToExamQuestions[_examId] == 0, "ExamGeneratedYet");
+        require(_idToExamQuestions[_examId].length == 0, "ExamGeneratedYet");
 
         uint size = getSize(_type, _level);
 
@@ -101,7 +101,7 @@ contract Examination is IExamination, Ownable {
 
     function listTypes() external view returns (ExamType[] memory) {
         uint len = _examTypeIds.length;
-        ExamType[] types = new ExamType[](len);
+        ExamType[] memory types = new ExamType[](len);
         for (uint i=0; i < len; i++) {
             types[i] = _examTypes[_examTypeIds[i]];
         }
@@ -110,9 +110,9 @@ contract Examination is IExamination, Ownable {
 
     function listLevels() external view returns (ExamLevel[] memory) {
         uint len = _examLevelIds.length;
-        ExamLevel[] levels = new ExamLevel[](len);
+        ExamLevel[] memory levels = new ExamLevel[](len);
         for (uint i=0; i < len; i++) {
-            levels[i] = _examTypes[_examLevelIds[i]];
+            levels[i] = _examLevels[_examLevelIds[i]];
         }
         return levels;
     }

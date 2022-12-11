@@ -34,7 +34,7 @@ contract CheckAnswer is Ownable {
     function getScore(
         string memory _examId,
         uint8[] calldata _answers
-    ) external view returns (uint8) {
+    ) external returns (uint8) {
         uint8 score = 0;
 
         string[] memory questsions = _examination.getExam(_examId);
