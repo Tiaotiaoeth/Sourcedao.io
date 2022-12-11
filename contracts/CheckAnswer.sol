@@ -10,8 +10,12 @@ import "./interfaces/IExamination.sol";
  * 阅卷
  */
 contract CheckAnswer is Ownable {
+    struct Answers {
+        uint8 score;  // 用户得分
+        uint8[] userAnswers; // 用户答案
+    }
     mapping(uint8 => mapping(uint8 => uint)) private _questionSizeMap; // 保存对应考试类型、难度的考题数量
-    mapping(string => uint8[]) private _idToExamAnswers;            // 试卷上链，用户答案
+    mapping(string => Answers) private _idToExamAnswers;            // 试卷上链，用户答案
 
     IQuestionRepo _questionRepo;
     IExamination _examination;
@@ -31,15 +35,15 @@ contract CheckAnswer is Ownable {
         emit SetExamination(examAddr);
     }
 
-    function getScore(
+    function check(
         string memory _examId,
         uint8[] calldata _answers
-    ) external returns (uint8) {
-        uint8 score = 0;
+    ) external {
+        require(_idToExamAnswers[_examId].score == 0, "CheckedYet!");
 
+        uint8 score = 0;
         string[] memory questsions = _examination.getExam(_examId);
         require(questsions.length == _answers.length);
-        _idToExamAnswers[_examId] = _answers;
 
         for (uint i = 0; i < _answers.length; i++) {
             string memory qhash = questsions[i];
@@ -48,10 +52,19 @@ contract CheckAnswer is Ownable {
                 score += _questionRepo.getScore(qhash);
             }
         }
-        return score;
+
+        Answers storage ans = _idToExamAnswers[_examId];
+        ans.score = score;
+        ans.userAnswers = _answers;
+    }
+
+    function getScore(string memory _examId) external view returns (uint8) {
+        return _idToExamAnswers[_examId].score;
     }
 
     function getAnswers(string memory _examId) external view returns (uint8[] memory) {
-        return _idToExamAnswers[_examId];
+        require(_idToExamAnswers[_examId].score > 0, "NotChecked!");
+
+        return _idToExamAnswers[_examId].userAnswers;
     }
 }

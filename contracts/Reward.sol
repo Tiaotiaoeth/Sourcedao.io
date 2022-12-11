@@ -59,7 +59,9 @@ contract Reward is Ownable {
         uint8 _level
     ) external {
         require(examIdToTokenId[_examId] == 0, "ExamMintYet");
-        uint8 score = checker.getScore(_examId, _answers);
+        
+        checker.check(_examId, _answers);
+        uint8 score = checker.getScore(_examId);
         uint8 passLine = passLines[_type][_level];
         require(passLine > 0, "passline");
         if (score >= passLine) {
@@ -95,7 +97,7 @@ contract Reward is Ownable {
 
     // 查询考试的SBT id
     function getTokenId(string memory _examId) public view returns (uint256) {
-        require(examIdToTokenId[_examId] == 0, "NoSBT");
+        require(examIdToTokenId[_examId] > 0, "NoSBT");
         
         return examIdToTokenId[_examId];
     }
