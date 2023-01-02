@@ -13,9 +13,33 @@ The project of SourceDAO.
 
 4. 阅卷：通过前三步，前端可以生成试卷，用户考完后，通过Reward.sol的checkAndTryReward(string _examId, uint8[] _answers, uint8 _type, uint8 _level)，参数_examId是试卷的唯一全局ID，_answers是用户提交的答案，_type和_level分别是考试类型和考试难度。注：_answers是uint8类型的数组，1、2、3、4分别对应选择题的A、B、C、D四个选项，0代表用户没有答题。
 
+4.1 前端阅卷：经过前三步之后，前端生成了试卷，用户考完后，如果前端完成阅卷，可以直接将分数和用户答案上链，合约省去阅卷过程。调用Reward.sol合约的mint(string _examId, uint8[] _answers, uint8 _score, uint8 _type, 
+uint8 _level)，参数_examId是试卷的唯一全局ID，_answers是用户提交的答案，_score, _type和_level分别是得分，考试类型和考试难度。如果得分超过及格线，mint函数会为用户生成SBT。如果不及格，mint函数仅将用户答案上链保存。
+
 5. 查询考试结果：第4步合约成执行后，可以调用Reward.sol的getSBTMetaByExam(string _examId)，参数_examId是试卷的唯一全局ID。如果考试不及格，则此处调用会失败。如果考试合格，会返回数据结构见Reward.sol定义的struct SourceDaoReward。根据这个SourceDaoReward，前端需要生成SBT图片（如果图片尚未生成）。
 
-6. 查询考过的试卷：需要知道试卷的唯一ID，首先调用Examination.sol合约的getExam(string _examId) returns (string[])获取试题，然后调用CheckAnswer.sol的getAnswers(string _examId) returns (uint8[])获得用户提交的答案。试题和答案分开存储是为了节省链上存储空间，减少gas消耗。
+6. 生成SBT的图片后，需要上传到链上，调用Reward.sol合约的setSBTPicContent(uint256 _tokenId, string content)函数，参数_tokenId是SBT的id，content是图片内容，例如IPFS hash
+
+7. 查询给定试卷的题目列表：需要知道试卷的唯一ID，首先调用Examination.sol合约的getExam(string _examId) returns (string[])获取试题，然后调用CheckAnswer.sol的getAnswers(string _examId) returns (uint8[])获得用户提交的答案。试题和答案分开存储是为了节省链上存储空间，减少gas消耗。
+
+8. 查询试卷详情：调用Examination.sol合约的getExamination(string _examId)函数，参数_examId是试卷的唯一ID。返回数据结构如下：
+    struct UserExamination {
+        uint _time;         // 试卷生成时间
+        uint8 _type;        // 考试类型
+        uint8 _level;       // 考试难度
+        string _examId；    // 试卷ID
+        string[] _questions; // 试题列表
+    }
+
+9. 查询试卷的批改结果：调用CheckAnswer.sol合约的getCheckedExamination(string _examId)函数，参数_examId是试卷的唯一ID。返回数据结构如下：
+    struct CheckedExamination {
+        string examId;   // 试卷ID
+        uint8 score;     // 用户得分
+        uint time;       // 交卷时间
+        uint8[] userAnswers; // 用户答案
+    }
+
+10. 试卷打分逻辑在CheckAnswer.sol合约的check()函数
 
 ### 遍历类接口
 
@@ -23,7 +47,13 @@ The project of SourceDAO.
 
 2. 列出所有考试难度：调用Examination.sol合约的listLevels() returns (ExamLevel[])，返回数据结构ExamLevel有两个成员，uint8 levelId是考试难度的ID，用于合约函数的参数。string name是考试难度的字符串表示，例如“初级”，用于前端展示。
 
-3. 列出用户（按照钱包地址）获得的所有SBT ids列表：调用Reward.sol的getTokensByUser(address user) returns (uint256[])，参数user是用户的钱包地址，返回SBT ids列表。根据返回的id，调用Reward.sol的getSBTMeta(uint256 _tokenId) returns (SourceDaoReward)可以查询SBT详情。
+3. 列出用户（钱包地址）生成的所有试卷，包括交卷的和未交卷的试卷：调用Examination.sol合约的getExamsByUser(address _user)，返回数据结构为examId的string[]数组。参数_user是用户的钱包地址。
+
+4. 列出用户（钱包地址）提交的所有试卷，包括交卷的和未交卷的试卷：调用Examination.sol合约的getExamsByUser(address _user)，返回数据结构为examId的string[]数组。参数_user是用户的钱包地址。根据examId可以调用getExaminationMeta()函数查询试卷详情。
+
+5. 列出用户（钱包地址）提交的所有批改过的试卷：调用CheckAnswer.sol合约的getCheckedExaminationByUser(address _user)，返回数据结构为examId的string[]数组。参数_user是用户的钱包地址。根据examId可以调用getCheckedExamination()函数查询试卷详情。
+
+6. 列出用户（按照钱包地址）获得的所有SBT ids列表：调用Reward.sol的getTokensByUser(address user) returns (uint256[])，参数user是用户的钱包地址，返回SBT ids列表。根据返回的id，调用Reward.sol的getSBTMeta(uint256 _tokenId) returns (SourceDaoReward)可以查询SBT详情。
 
 
 
@@ -40,7 +70,7 @@ The project of SourceDAO.
 2.2 设置考题数量：调用Examination.sol的setSizeMap(uint8 qtype, uint8 qlevel, uint size)，参数qtype和qlevel分别是考试类型和考试难度，size是考题数量。
 2.3 设置考试及格线：调用Reward.sol的setPassLine(uint8 type, uint8 level, uint8 score)，参数type和level分别是考试类型和考试难度，score是及格线，百分制。
 2.4 设置不同难度试题的分数：调用QuestionRepo.sol的setLevelScore(uint8 _level, uint8 _score)，参数_level是试题难度ID，_score是该难度试题的分值。
-
+2.5 设置不同难度试题的比例：调用Examination.sol的setLevelPercent(uint8 _type, uint8 _hardPct, uint8 _normalPct, uint8 _easyPct)，参数_type是考试类型，_hardPct, _normalPct和_easyPct分别是难题，普通题和简单题的百分比。例如_hardPct=10代表难题比例为10%。
 
 ### 数据上链
 

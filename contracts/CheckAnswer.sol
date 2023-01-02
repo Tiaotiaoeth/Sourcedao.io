@@ -10,12 +10,15 @@ import "./interfaces/IExamination.sol";
  * 阅卷
  */
 contract CheckAnswer is Ownable {
-    struct Answers {
-        uint8 score;  // 用户得分
+    struct CheckedExamination {
+        string examId;   // 试卷ID
+        uint8 score;     // 用户得分
+        uint time;       // 交卷时间
         uint8[] userAnswers; // 用户答案
     }
     mapping(uint8 => mapping(uint8 => uint)) private _questionSizeMap; // 保存对应考试类型、难度的考题数量
-    mapping(string => Answers) private _idToExamAnswers;            // 试卷上链，用户答案
+    mapping(string => CheckedExamination) private _idToExamAnswers;            // 试卷上链，用户答案
+    mapping(address => string[]) private _userToExamIds;            // 用户提交的试卷列表
 
     IQuestionRepo _questionRepo;
     IExamination _examination;
@@ -35,26 +38,48 @@ contract CheckAnswer is Ownable {
         emit SetExamination(examAddr);
     }
 
+    // 阅卷打分
     function check(
         string memory _examId,
         uint8[] calldata _answers
     ) external {
+        // 检查当前试卷是否已经打过分
         require(_idToExamAnswers[_examId].score == 0, "CheckedYet!");
 
-        uint8 score = 0;
+        uint8 score = 0;        // 用户实际得分
+        uint16 totalScore = 0;  // 试卷总分，总分可能不是100分
+        // 获取试题ID
         string[] memory questsions = _examination.getExam(_examId);
         require(questsions.length == _answers.length);
 
         for (uint i = 0; i < _answers.length; i++) {
             string memory qhash = questsions[i];
+            // 查询标准答案
             uint8 standard = _questionRepo.getStandardAnswer(qhash);
+            // 查询试题分值
+            uint8 value = _questionRepo.getScore(qhash);
             if (standard == _answers[i]) {
-                score += _questionRepo.getScore(qhash);
+                score += value;
             }
+            totalScore += value;
         }
+        // 归一化成100分值
+        score = score * 100 / totalScore;
 
-        Answers storage ans = _idToExamAnswers[_examId];
+        setAnswers(_examId, _answers, score);
+    }
+
+    function setAnswers(
+        string memory _examId, 
+        uint8[] calldata _answers,
+        uint8 score
+    ) public {
+        require(_idToExamAnswers[_examId].score == 0, "CheckedYet!");
+
+        CheckedExamination storage ans = _idToExamAnswers[_examId];
+        ans.examId = _examId;
         ans.score = score;
+        ans.time = block.timestamp;
         ans.userAnswers = _answers;
     }
 
@@ -67,4 +92,21 @@ contract CheckAnswer is Ownable {
 
         return _idToExamAnswers[_examId].userAnswers;
     }
+
+    function getCheckedExaminationByUser(address _user) external view returns (string[] memory) {
+        return _userToExamIds[_user];
+    }
+
+    function getCheckedExamination(string memory _examId) external view returns (CheckedExamination memory) {
+        return _idToExamAnswers[_examId];
+    }
+
+    function getQuestionSize(string memory _examId) external view returns (uint8) {
+        return _idToExamAnswers[_examId].userAnswers.length;
+    }
+
+    function getExaminationDurationDelegate(uint8 qtype, uint8 qlevel) external view returns (uint16) {
+        return _examination.getExaminationDuration(qtype, qlevel);
+    }
+
 }

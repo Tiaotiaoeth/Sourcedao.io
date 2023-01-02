@@ -7,13 +7,25 @@ import "./SBT.sol";
 
 contract Reward is Ownable {
     struct SourceDaoReward {
+        // 基础信息
+        string org;     // 颁发机构
+        uint time;      // 颁发时间，使用区块时间
+        // 区块链信息
+        string chain;       // 区块链
+        string protocol;    // 协议
+        address contract;   // 合约地址
         uint256 id;         // SBT id
+
         uint8 qlevel;       // 考试的难度
         uint8 qtype;        // 考试的类型
+        uint8 qsize;        // 试题数量
+        uint qduration;     // 考试时长，分钟
+        uint lowCost;       // 考试门槛，10E-6
+        string costUnit;    // 考试费用单位
         uint16 score;       // 考试分数
-        uint time;          // 考试时间，使用区块时间
         address owner;      // 考试人
         string examId;      // 试卷ID
+        string picContent;  // 图片内容，例如IPFS hash
     }
 
     mapping(uint8 => mapping(uint8 => uint8)) passLines;
@@ -52,6 +64,53 @@ contract Reward is Ownable {
         passLines[_type][_level] = _score;
     }
 
+    function _mint(string memory _examId, uint8 _type, uint8 _level, uin8 score) private {
+        idCounter.increment();
+        uint256 tokenId = idCounter.current();
+
+        examIdToTokenId[_examId] = tokenId;
+        SourceDaoReward storage r = tokenIdToRewardMeta[tokenId];
+        r.org = "SourceDAO";
+        r.time = block.timestamp;
+        
+        r.chain = "Polygon";
+        r.protocol = "ERC-721";
+        r.contract = address(this);
+        r.id = tokenId;
+
+        r.qlevel = _level;
+        r.qtype = _type;
+        r.qsize = checker.getQuestionSize(_examId);
+        r.qduration = checker.getExaminationDurationDelegate(_type, _level);
+        r.lowCost = 10000;
+        r.costUnit = "MATIC";
+        r.score = score;
+        r.owner = msg.sender;
+        r.examId = _examId;
+
+        sbt.safeMint(msg.sender, tokenId);
+        balanceList[msg.sender].push(tokenId);
+    }
+
+    function mint(
+        string memory _examId, 
+        uint8[] calldata _answers,
+        uint8 _score,
+        uint8 _type, 
+        uint8 _level
+    ) external {
+        require(examIdToTokenId[_examId] == 0, "ExamMintYet");
+
+        checker.setAnswers(_examId, _answers, _score);
+        uint8 passLine = passLines[_type][_level];
+        require(passLine > 0, "passline");
+        if (_score >= passLine) {
+            _mint(_examId, _type, _level, _score);
+        }
+        
+        emit RewardEvent(msg.sender, _type, _level, _score, _score >= passLine);
+    }
+
     function checkAndTryReward(
         string memory _examId, 
         uint8[] calldata _answers,
@@ -65,24 +124,17 @@ contract Reward is Ownable {
         uint8 passLine = passLines[_type][_level];
         require(passLine > 0, "passline");
         if (score >= passLine) {
-            idCounter.increment();
-            uint256 tokenId = idCounter.current();
-
-            examIdToTokenId[_examId] = tokenId;
-            SourceDaoReward storage r = tokenIdToRewardMeta[tokenId];
-            r.id = tokenId;
-            r.qlevel = _level;
-            r.qtype = _type;
-            r.score = score;
-            r.time = block.timestamp;
-            r.owner = msg.sender;
-            r.examId = _examId;
-
-            sbt.safeMint(msg.sender, tokenId);
-            balanceList[msg.sender].push(tokenId);
+            _mint(_examId, _type, _level, score);
         }
         
         emit RewardEvent(msg.sender, _type, _level, score, score >= passLine);
+    }
+
+    function setSBTPicContent(uint256 _tokenId, string memory content) external {
+        SourceDaoReward storage r = tokenIdToRewardMeta[tokenId];
+        require(r.picContent.length == 0, "PicContentSetYet");
+
+        r.picContent = content;
     }
 
     // 查询SBT的元信息

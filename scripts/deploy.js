@@ -9,7 +9,9 @@
         console.log('question repo deployed at:'+ repo.address)
 
         // 设置不能难度题目的分值
-        // await repo.setLevelScore(question_level, 5);
+        await repo.setLevelScore(1, 2);     // 初级题目，分值为2
+        await repo.setLevelScore(2, 3);     // 中级题目，分值为3
+        await repo.setLevelScore(3, 5);     // 高级题目，分值为5
 
         //// 初始化试卷合约
         const Examination = await ethers.getContractFactory("Examination");
@@ -19,14 +21,17 @@
 
         // 设置题库合约地址
         await exam.setQuestionRepo(repo.address);
-        // 设置不同难度试卷的题目数量
-        //await exam.setSizeMap(question_type, question_level, exam_size);
         // 添加考试类型
         await exam.addExaminationType(1, "通识类");
         // 添加考试难度
         await exam.addExaminationLevel(1, "初级");
         await exam.addExaminationLevel(2, "中级");
         await exam.addExaminationLevel(3, "高级");
+        // 设置不同难度试卷的题目数量
+        await exam.setSizeMap(1, 1, 20);    // 测试时用20题，正式上线改为100题
+        // 设置试卷中不同难度题目的比例
+        // setLevelPercent(type, level, hardPct, normalPct, easyPct)
+        await exam.setLevelPercent(1, 1, 20, 30, 50);
         // 设置考试时长
         const examMinutes = 20;
         await exam.setExaminationDuration(1, 2, examMinutes);
