@@ -1,24 +1,38 @@
 (async () => {
     try {
-        console.log('Running deployWithEthers script...')
+        console.log('Running deployWithEthers script by remix...');
     
         //// 初始化题库合约
-        const QuestionRepo = await ethers.getContractFactory("QuestionRepo");
-        const repo = await QuestionRepo.deploy();
-        await repo.deployed();
-        console.log('question repo deployed at:'+ repo.address)
+        let contractName = 'QuestionRepo'
+        let constructorArgs = []
+        let artifactsPath = `browser/contracts/artifacts/${contractName}.json`    
+        let metadata = JSON.parse(await remix.call('fileManager', 'getFile', artifactsPath))
+        let signer = (new ethers.providers.Web3Provider(web3Provider)).getSigner()
+        let factory = new ethers.ContractFactory(metadata.abi, metadata.data.bytecode.object, signer);    
+        
+        let repo = await factory.deploy(...constructorArgs);
+        await repo.deployed()
+        console.log('question repo deployed at:'+ repo.address);
 
         // 设置不能难度题目的分值
-        await repo.setLevelScore(1, 2);     // 初级题目，分值为2
-        await repo.setLevelScore(2, 3);     // 中级题目，分值为3
-        await repo.setLevelScore(3, 5);     // 高级题目，分值为5
-
+        //await repo.setLevelScore(1, 2);     // 初级题目，分值为2
+        //await repo.setLevelScore(2, 3);     // 中级题目，分值为3
+        //await repo.setLevelScore(3, 5);     // 高级题目，分值为5
+        await await repo.setDefault();
+        
         //// 初始化试卷合约
-        const Examination = await ethers.getContractFactory("Examination");
-        const exam = await Examination.deploy();
+        contractName = 'Examination'
+        constructorArgs = []
+        artifactsPath = `browser/contracts/artifacts/${contractName}.json`    
+        metadata = JSON.parse(await remix.call('fileManager', 'getFile', artifactsPath))
+        signer = (new ethers.providers.Web3Provider(web3Provider)).getSigner()
+        factory = new ethers.ContractFactory(metadata.abi, metadata.data.bytecode.object, signer);    
+        
+        const exam = await factory.deploy(...constructorArgs);
         await exam.deployed();
-        console.log('Examination deployed at:'+ exam.address)
+        console.log('Examination deployed at:'+ exam.address);
 
+        /*
         // 设置题库合约地址
         await exam.setQuestionRepo(repo.address);
         // 添加考试类型
@@ -35,37 +49,75 @@
         // 设置考试时长
         const examMinutes = 20;
         await exam.setExaminationDuration(1, 2, examMinutes);
+        */
+        await exam.setDefault(repo.address);
         
         //// 初始化阅卷合约
-        const CheckAnswer = await ethers.getContractFactory("CheckAnswer");
-        const checker = await CheckAnswer.deploy();
+        contractName = 'CheckAnswer'
+        constructorArgs = []
+        artifactsPath = `browser/contracts/artifacts/${contractName}.json`    
+        metadata = JSON.parse(await remix.call('fileManager', 'getFile', artifactsPath))
+        signer = (new ethers.providers.Web3Provider(web3Provider)).getSigner()
+        factory = new ethers.ContractFactory(metadata.abi, metadata.data.bytecode.object, signer);    
+        
+        const checker = await factory.deploy(...constructorArgs);
         await checker.deployed();
-        console.log('CheckAnswer deployed at:'+ checker.address)
+        console.log('CheckAnswer deployed at:'+ checker.address);
         
         // 设置题库和试卷合约地址
-        checker.setQuestionRepo(repo.address);
-        checker.setExamination(exam.address);
+        //checker.setQuestionRepo(repo.address);
+        //checker.setExamination(exam.address);
+        await checker.setDefault(repo.address, exam.address);
 
         //// 初始化SBT合约
-        const SBT = await ethers.getContractFactory("SBT");
-        const sbt = await SBT.deploy("name", "st", "");
+        contractName = 'SBT'
+        constructorArgs = ["name", "st", ""]
+        artifactsPath = `browser/contracts/artifacts/${contractName}.json`    
+        metadata = JSON.parse(await remix.call('fileManager', 'getFile', artifactsPath))
+        signer = (new ethers.providers.Web3Provider(web3Provider)).getSigner()
+        factory = new ethers.ContractFactory(metadata.abi, metadata.data.bytecode.object, signer);    
+        
+        const sbt = await factory.deploy(...constructorArgs);
         await sbt.deployed();
-        console.log('SBT deployed at:'+ sbt.address)
+        console.log('SBT deployed at:'+ sbt.address);
 
         /// 初始化Reward合约
-        const Reward = await ethers.getContractFactory("Reward");
-        const reward = await Reward.deploy();
+        contractName = 'Reward'
+        constructorArgs = []
+        artifactsPath = `browser/contracts/artifacts/${contractName}.json`    
+        metadata = JSON.parse(await remix.call('fileManager', 'getFile', artifactsPath))
+        signer = (new ethers.providers.Web3Provider(web3Provider)).getSigner()
+        factory = new ethers.ContractFactory(metadata.abi, metadata.data.bytecode.object, signer);    
+        
+        const reward = await factory.deploy(...constructorArgs);
         await reward.deployed();
-        console.log('Reward deployed at:'+ reward.address)
+        console.log('Reward deployed at:'+ reward.address);
         
         // 设置合约地址
-        reward.setSBTContract(sbt.address);
-        reward.setCheckAnswer(checker.address);
+        //reward.setSBTContract(sbt.address);
+        //reward.setCheckAnswer(checker.address);
         // 设置及格线，测试用例：不及格，没有SBT
-        const passLine = 100;
-        reward.setPassLine(question_type, question_level, passLine);
-        reward.checkAndTryReward(examId, answers, question_type,  question_level);
+        //const passLine = 60;
+        //reward.setPassLine(1, 1, passLine);
+        await reward.setDefault(sbt.address, checker.address);
 
+        // 初始化临时工作流合约
+        contractName = 'WorkflowV1'
+        constructorArgs = []
+        artifactsPath = `browser/contracts/artifacts/${contractName}.json`    
+        metadata = JSON.parse(await remix.call('fileManager', 'getFile', artifactsPath))
+        signer = (new ethers.providers.Web3Provider(web3Provider)).getSigner()
+        factory = new ethers.ContractFactory(metadata.abi, metadata.data.bytecode.object, signer);    
+        
+        const wl = await factory.deploy(...constructorArgs);
+        await wl.deployed();
+        console.log("WorkflowV1 deployed at:" + wl.address);
+
+        // 设置合约地址
+        //wl.setExamForWorkflow(exam.address);
+        //wl.setReward(reward.address);
+        await wl.setDefault(exam.address, reward.address);
+        
         console.log('Deployment successful.')
     } catch (e) {
         console.log(e.message)

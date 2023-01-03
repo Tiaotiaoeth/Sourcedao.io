@@ -15,7 +15,7 @@ contract Examination is IExamination, Ownable {
         uint _time;         // 试卷生成时间
         uint8 _type;        // 考试类型
         uint8 _level;       // 考试难度
-        string _examId；    // 试卷ID
+        string _examId;     // 试卷ID
         string[] _questions; // 试题列表
     }
     struct LevelPercent {
@@ -44,6 +44,50 @@ contract Examination is IExamination, Ownable {
         _questionRepo = IQuestionRepo(repoAddr);
 
         emit SetQuestionRepo(repoAddr);
+    }
+
+    function setDefault(address repoAddr) external onlyOwner {
+        _questionRepo = IQuestionRepo(repoAddr);
+        
+        //addExaminationType(1, unicode"通识类");
+        ExamType storage eType = _examTypes[1];
+        eType.typeId = 1;
+        eType.name = unicode"通识类";
+        _examTypeIds.push(1);
+
+        // 添加考试难度
+        //addExaminationLevel(1, unicode"初级");
+        ExamLevel storage eLevel1 = _examLevels[1];
+        eLevel1.levelId = 1;
+        eLevel1.name = unicode"初级";
+        _examLevelIds.push(1);
+
+        //addExaminationLevel(2, unicode"中级");
+        ExamLevel storage eLevel2 = _examLevels[2];
+        eLevel2.levelId = 2;
+        eLevel2.name = unicode"中级";
+        _examLevelIds.push(2);
+
+        //addExaminationLevel(3, unicode"高级");
+        ExamLevel storage eLevel3 = _examLevels[3];
+        eLevel3.levelId = 3;
+        eLevel3.name = unicode"高级";
+        _examLevelIds.push(3);
+
+        // 设置不同难度试卷的题目数量
+        //setSizeMap(1, 1, 20);    // 测试时用20题，正式上线改为100题
+        _questionSizeMap[1][1] = 20;
+
+        // 设置试卷中不同难度题目的比例
+        // setLevelPercent(type, level, hardPct, normalPct, easyPct)
+        //setLevelPercent(1, 1, 20, 30, 50);
+        LevelPercent storage lp = _levelPercent[1][1];
+        lp.hardPct = 20;
+        lp.normalPct = 30;
+        lp.easyPct = 50;
+        // 设置考试时长(minutes)
+        //setExaminationDuration(1, 2, examMinutes);
+        _examDuration[1][1] = 20;
     }
 
     function addExaminationType(uint8 qtype, string memory name) external onlyOwner {
@@ -111,7 +155,6 @@ contract Examination is IExamination, Ownable {
         userExam._examId = _examId;
 
         LevelPercent storage lp = _levelPercent[_type][_level];
-        uint16 totalValue = 0;
         // 先生成简单题目
         uint8 qlevel = 1;
         uint levelSize = size * lp.easyPct / 100;
@@ -180,7 +223,7 @@ contract Examination is IExamination, Ownable {
         return _examDuration[qtype][qlevel];
     }
 
-    function getExamsByUser(address _user) external view returns (sring[] memory) {
+    function getExamsByUser(address _user) external view returns (string[] memory) {
         return _userToExamIds[_user];
     }
 

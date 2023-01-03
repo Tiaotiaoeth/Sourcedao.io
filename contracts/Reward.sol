@@ -13,7 +13,7 @@ contract Reward is Ownable {
         // 区块链信息
         string chain;       // 区块链
         string protocol;    // 协议
-        address contract;   // 合约地址
+        address contractAddr;   // 合约地址
         uint256 id;         // SBT id
 
         uint8 qlevel;       // 考试的难度
@@ -31,6 +31,8 @@ contract Reward is Ownable {
     mapping(uint8 => mapping(uint8 => uint8)) passLines;
     // 每个SBT的元信息
     mapping(uint256 => SourceDaoReward) tokenIdToRewardMeta;
+    // 每个预mint SBT的元信息
+    mapping(string => SourceDaoReward) examIdToPreRewardMeta;
     // 每次考试最多获得一枚SBT
     mapping(string => uint256) examIdToTokenId;
     // 每个用户钱包地址获得的SBT列表
@@ -64,7 +66,14 @@ contract Reward is Ownable {
         passLines[_type][_level] = _score;
     }
 
-    function _mint(string memory _examId, uint8 _type, uint8 _level, uin8 score) private {
+    function setDefault(address sbtAddr, address checkerAddr) external onlyOwner {
+        sbt = SBT(sbtAddr);
+        checker = CheckAnswer(checkerAddr);
+        //reward.setPassLine(1, 1, 60);
+        passLines[1][1] = 60;
+    }
+    
+    function _mint(string memory _examId, uint8 _type, uint8 _level, uint8 score) private {
         idCounter.increment();
         uint256 tokenId = idCounter.current();
 
@@ -75,7 +84,7 @@ contract Reward is Ownable {
         
         r.chain = "Polygon";
         r.protocol = "ERC-721";
-        r.contract = address(this);
+        r.contractAddr = address(this);
         r.id = tokenId;
 
         r.qlevel = _level;
@@ -131,8 +140,9 @@ contract Reward is Ownable {
     }
 
     function setSBTPicContent(uint256 _tokenId, string memory content) external {
-        SourceDaoReward storage r = tokenIdToRewardMeta[tokenId];
-        require(r.picContent.length == 0, "PicContentSetYet");
+        SourceDaoReward storage r = tokenIdToRewardMeta[_tokenId];
+        require(bytes(r.picContent).length == 0, "PicContentSetYet");
+        require(bytes(content).length > 0, "PicContentErr");
 
         r.picContent = content;
     }
@@ -157,5 +167,62 @@ contract Reward is Ownable {
     // 查询一个用户获得的所有SBT id列表
     function getTokensByUser(address user) external view returns (uint256[] memory) {
         return balanceList[user];
+    }
+
+    // 预生成SBT，应当删掉
+    function prefetchSBTMetaByExam(
+        string memory _examId, 
+        uint8 _type, 
+        uint8 _level
+    ) external {
+        idCounter.increment();
+        uint256 tokenId = idCounter.current();
+
+        //examIdToTokenId[_examId] = tokenId;
+        SourceDaoReward storage r = examIdToPreRewardMeta[_examId];
+        r.org = "SourceDAO";
+        r.time = block.timestamp;
+        
+        r.chain = "Polygon";
+        r.protocol = "ERC-721";
+        r.contractAddr = address(this);
+        r.id = tokenId;
+
+        r.qlevel = _level;
+        r.qtype = _type;
+        r.qsize = checker.getQuestionSize(_examId);
+        r.qduration = checker.getExaminationDurationDelegate(_type, _level);
+        r.lowCost = 10000;
+        r.costUnit = "MATIC";
+        //r.score = score;
+        r.owner = msg.sender;
+        r.examId = _examId;
+
+        //sbt.safeMint(msg.sender, tokenId);
+        //balanceList[msg.sender].push(tokenId);
+    }
+
+    // 更新预生成的SBT，应当删掉
+    function postSBTMetaByExam(
+        string memory _examId, 
+        uint8 _score, 
+        string memory _picContent
+    ) external {
+        require(bytes(_picContent).length > 0, "PicContentErr");
+
+        
+        SourceDaoReward storage r = examIdToPreRewardMeta[_examId];
+        r.score = _score;
+        r.picContent = _picContent;
+        uint256 _tokenId = r.id;
+        examIdToTokenId[_examId] = _tokenId;
+        tokenIdToRewardMeta[_tokenId] = r;
+
+        sbt.safeMint(msg.sender, _tokenId);
+        balanceList[msg.sender].push(_tokenId);
+    }
+
+    function getPreSBTMetaByExam(string memory _examId) external view returns (SourceDaoReward memory) {
+        return examIdToPreRewardMeta[_examId];
     }
 }

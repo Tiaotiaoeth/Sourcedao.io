@@ -38,6 +38,11 @@ contract CheckAnswer is Ownable {
         emit SetExamination(examAddr);
     }
 
+    function setDefault(address repoAddr, address examAddr) external onlyOwner {
+        _questionRepo = IQuestionRepo(repoAddr);
+        _examination = IExamination(examAddr);
+    }
+    
     // 阅卷打分
     function check(
         string memory _examId,
@@ -46,7 +51,7 @@ contract CheckAnswer is Ownable {
         // 检查当前试卷是否已经打过分
         require(_idToExamAnswers[_examId].score == 0, "CheckedYet!");
 
-        uint8 score = 0;        // 用户实际得分
+        uint16 score = 0;        // 用户实际得分
         uint16 totalScore = 0;  // 试卷总分，总分可能不是100分
         // 获取试题ID
         string[] memory questsions = _examination.getExam(_examId);
@@ -66,7 +71,7 @@ contract CheckAnswer is Ownable {
         // 归一化成100分值
         score = score * 100 / totalScore;
 
-        setAnswers(_examId, _answers, score);
+        setAnswers(_examId, _answers, uint8(score));
     }
 
     function setAnswers(
@@ -102,7 +107,7 @@ contract CheckAnswer is Ownable {
     }
 
     function getQuestionSize(string memory _examId) external view returns (uint8) {
-        return _idToExamAnswers[_examId].userAnswers.length;
+        return uint8(_idToExamAnswers[_examId].userAnswers.length);
     }
 
     function getExaminationDurationDelegate(uint8 qtype, uint8 qlevel) external view returns (uint16) {

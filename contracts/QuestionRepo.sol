@@ -17,6 +17,12 @@ contract QuestionRepo is IQuestionRepo, Ownable {
     mapping(string => SourceQuestion) private hashToQuestion;
     mapping(uint8 => uint8) private levelToScore;
 
+    function setDefault() external onlyOwner {
+        levelToScore[1] = 2;
+        levelToScore[2] = 3;
+        levelToScore[3] = 5;
+    }
+    
     // 设置不同难度题目的分值
     function setLevelScore(uint8 _level, uint8 _score) external onlyOwner {
         levelToScore[_level] = _score;

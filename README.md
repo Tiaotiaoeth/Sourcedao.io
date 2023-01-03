@@ -4,6 +4,36 @@ The project of SourceDAO.
 
 ## 合约接口
 
+### 临时考试流程：为了减少用户支付gas的次数，牺牲一些安全性
+1. 生成试卷和提前mint SBT
+调用WorkflowV.sol合约的function prepare(string _examId, uint8 _type, uint8 _level)函数。这一步需要支付gas。
+然后可以调用Examination.sol合约的getExam(string _examId) returns (string[])获取试卷。
+批改之后，可以调用Reward.sol合约的getPreSBTMetaByExam(string _examId) returns (SourceDaoReward)，返回数据结构为
+    struct SourceDaoReward {
+        // 基础信息
+        string org;     // 颁发机构
+        uint time;      // 颁发时间，使用区块时间
+        // 区块链信息
+        string chain;       // 区块链
+        string protocol;    // 协议
+        address contractAddr;   // 合约地址
+        uint256 id;         // SBT id
+
+        uint8 qlevel;       // 考试的难度
+        uint8 qtype;        // 考试的类型
+        uint8 qsize;        // 试题数量
+        uint qduration;     // 考试时长，分钟
+        uint lowCost;       // 考试门槛，10E-6
+        string costUnit;    // 考试费用单位
+        uint16 score;       // 考试分数
+        address owner;      // 考试人
+        string examId;      // 试卷ID
+        string picContent;  // 图片内容，例如IPFS hash
+    }
+2. 上传分数和SBT图片
+调用WorkflowV.sol合约的submit(string _examId, uint8 _score, string _picContent)，其中_picContent是图片的IPFS hash。调用这种函数后，会将提前mint的SBT存储在链上，这一步需要支付gas。
+
+
 ### 考试流程
 1. 生成试卷：调用Examination.sol合约的genExam(string _examId, uint8 _type, uint8 _level)，其中_examId是试卷的唯一全局ID，此ID由前端构造，每张试卷必须不同。_type和_level分别是考试类型和考试难度，例如通识类考试的_type=1，考试难度_level取值1,2或3，数值越大难度越高。如果合约调用成功，可以执行下一步。
 
