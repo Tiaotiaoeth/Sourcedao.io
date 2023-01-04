@@ -204,6 +204,7 @@ contract Reward is Ownable {
 
     // 更新预生成的SBT，应当删掉
     function postSBTMetaByExam(
+        address _to,
         string memory _examId, 
         uint8 _score, 
         string memory _picContent
@@ -218,8 +219,8 @@ contract Reward is Ownable {
         examIdToTokenId[_examId] = _tokenId;
         tokenIdToRewardMeta[_tokenId] = r;
 
-        sbt.safeMint(msg.sender, _tokenId);
-        balanceList[msg.sender].push(_tokenId);
+        sbt.safeMint(_to, _tokenId);
+        balanceList[_to].push(_tokenId);
     }
 
     function getPreSBTMetaByExam(string memory _examId) external view returns (SourceDaoReward memory) {

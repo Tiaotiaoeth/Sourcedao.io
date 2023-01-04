@@ -31,7 +31,7 @@ The project of SourceDAO.
         string picContent;  // 图片内容，例如IPFS hash
     }
 2. 上传分数和SBT图片
-调用WorkflowV.sol合约的submit(string _examId, uint8 _score, string _picContent)，其中_picContent是图片的IPFS hash。调用这种函数后，会将提前mint的SBT存储在链上，这一步需要支付gas。
+调用WorkflowV.sol合约的submit(address _to, string _examId, uint8 _score, string _picContent)，其中_to是用户的钱包地址，_picContent是图片的IPFS hash。调用这种函数后，会将提前mint的SBT存储在链上，这一步需要支付gas。
 
 
 ### 考试流程

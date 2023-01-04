@@ -39,7 +39,7 @@ contract WorkflowV1 is Ownable {
         _reward.prefetchSBTMetaByExam(_examId, _type, _level);
     }
 
-    function submit(string memory _examId, uint8 _score, string memory _picContent) external {
-        _reward.postSBTMetaByExam(_examId, _score, _picContent);
+    function submit(address _to, string memory _examId, uint8 _score, string memory _picContent) external {
+        _reward.postSBTMetaByExam(_to, _examId, _score, _picContent);
     }
 }
