@@ -11,13 +11,7 @@ import "./interfaces/IExamination.sol";
  * 生成一次考试的合约。
  */
 contract Examination is IExamination, Ownable {
-    struct UserExamination {
-        uint _time;         // 试卷生成时间
-        uint8 _type;        // 考试类型
-        uint8 _level;       // 考试难度
-        string _examId;     // 试卷ID
-        string[] _questions; // 试题列表
-    }
+
     struct LevelPercent {
         uint8 hardPct;
         uint8 normalPct;
@@ -29,6 +23,8 @@ contract Examination is IExamination, Ownable {
     mapping(uint8 => ExamLevel) private _examLevels;
     // 考试时间，由考试类型和考试级别决定
     mapping(uint8 => mapping(uint8 => uint16)) private _examDuration; 
+    // 成绩有效期，单位月份，由考试类型和考试级别决定
+    mapping(uint8 => mapping(uint8 => uint16)) private _examExpire; 
     mapping(uint8 => mapping(uint8 => LevelPercent)) private _levelPercent;     // 不同类型和难度的试卷，各种难度题目的比例
 
     mapping(uint8 => mapping(uint8 => uint)) private _questionSizeMap; // 保存对应考试类型、难度的考题数量
@@ -88,6 +84,8 @@ contract Examination is IExamination, Ownable {
         // 设置考试时长(minutes)
         //setExaminationDuration(1, 2, examMinutes);
         _examDuration[1][1] = 20;
+        // 设置有效期（month）
+        _examExpire[1][1] = 3;
     }
 
     function addExaminationType(uint8 qtype, string memory name) external onlyOwner {
@@ -133,8 +131,18 @@ contract Examination is IExamination, Ownable {
         lp.easyPct = _easyPct;
     }
 
-    function getSize(uint8 _type, uint8 _level) private view returns (uint) {
+    function setExpire(uint8 _type, uint8 _level, uint16 _expire) external onlyOwner {
+        _examExpire[_type][_level] = _expire;
+
+        emit SetExaminationExpire(_type, _level, _expire);
+    }
+
+    function getSize(uint8 _type, uint8 _level) external view returns (uint) {
         return _questionSizeMap[_type][_level];
+    }
+
+    function getExpire(uint8 _type, uint8 _level) external view returns (uint16) {
+        return _examExpire[_type][_level];
     }
 
     function getExam(string memory _examId) external view returns (string[] memory) {
@@ -145,7 +153,7 @@ contract Examination is IExamination, Ownable {
     function genExam(string memory _examId, uint8 _type, uint8 _level) external {
         require(_idToExamination[_examId]._questions.length == 0, "ExamGeneratedYet");
         // 试题数量
-        uint size = getSize(_type, _level);
+        uint size = _questionSizeMap[_type][_level];
         // 随机挑选试题，去重
         mapping(string => bool) storage dedup = _idToExamDedup[_examId];
         UserExamination storage userExam = _idToExamination[_examId];

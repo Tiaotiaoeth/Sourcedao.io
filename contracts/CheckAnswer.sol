@@ -106,8 +106,12 @@ contract CheckAnswer is Ownable {
         return _idToExamAnswers[_examId];
     }
 
-    function getQuestionSize(string memory _examId) external view returns (uint8) {
-        return uint8(_idToExamAnswers[_examId].userAnswers.length);
+    function getQuestionSize(uint8 _type, uint8 _level) external view returns (uint) {
+        return _examination.getSize(_type, _level);
+    }
+
+    function getExamExpire(uint8 _type, uint8 _level) external view returns (uint16) {
+        return _examination.getExpire(_type, _level);
     }
 
     function getExaminationDurationDelegate(uint8 qtype, uint8 qlevel) external view returns (uint16) {

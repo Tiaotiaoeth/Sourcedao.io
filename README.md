@@ -33,6 +33,8 @@ The project of SourceDAO.
 2. 上传分数和SBT图片
 调用WorkflowV.sol合约的submit(address _to, string _examId, uint8 _score, string _picContent)，其中_to是用户的钱包地址，_picContent是图片的IPFS hash。调用这种函数后，会将提前mint的SBT存储在链上，这一步需要支付gas。
 
+3. 考试前获取SBT配置信息
+调用Reward.sol合约的getPreExamSBTMeta(uint8 _type, uint8 _level) returns (string[] memory)返回字符串数组，成员分别为[认证机构，考试时长，题目数量，有效期（月），考试门槛（数量+单位）]
 
 ### 考试流程
 1. 生成试卷：调用Examination.sol合约的genExam(string _examId, uint8 _type, uint8 _level)，其中_examId是试卷的唯一全局ID，此ID由前端构造，每张试卷必须不同。_type和_level分别是考试类型和考试难度，例如通识类考试的_type=1，考试难度_level取值1,2或3，数值越大难度越高。如果合约调用成功，可以执行下一步。

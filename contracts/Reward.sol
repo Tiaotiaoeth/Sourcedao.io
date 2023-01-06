@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.17;
 import "@openzeppelin/contracts/utils/Counters.sol";
+import "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "./CheckAnswer.sol";
 import "./SBT.sol";
@@ -18,11 +19,12 @@ contract Reward is Ownable {
 
         uint8 qlevel;       // 考试的难度
         uint8 qtype;        // 考试的类型
-        uint8 qsize;        // 试题数量
+        uint qsize;        // 试题数量
         uint qduration;     // 考试时长，分钟
         uint lowCost;       // 考试门槛，10E-6
         string costUnit;    // 考试费用单位
         uint16 score;       // 考试分数
+        string ability;     // 考试能力
         address owner;      // 考试人
         string examId;      // 试卷ID
         string picContent;  // 图片内容，例如IPFS hash
@@ -89,13 +91,25 @@ contract Reward is Ownable {
 
         r.qlevel = _level;
         r.qtype = _type;
-        r.qsize = checker.getQuestionSize(_examId);
+        r.qsize = checker.getQuestionSize(_type, _level);
         r.qduration = checker.getExaminationDurationDelegate(_type, _level);
         r.lowCost = 10000;
         r.costUnit = "MATIC";
         r.score = score;
         r.owner = msg.sender;
         r.examId = _examId;
+
+        if (score >= 90) {
+            r.ability = "High Distinction";
+        } else if (score >= 80) {
+            r.ability = "Distinction";
+        } else if (score >= 70) {
+            r.ability = "Credit";
+        } else if (score >= 60) {
+            r.ability = "Pass";
+        } else {
+            r.ability = "Fail";
+        }
 
         sbt.safeMint(msg.sender, tokenId);
         balanceList[msg.sender].push(tokenId);
@@ -190,7 +204,7 @@ contract Reward is Ownable {
 
         r.qlevel = _level;
         r.qtype = _type;
-        r.qsize = checker.getQuestionSize(_examId);
+        r.qsize = checker.getQuestionSize(_type, _level);
         r.qduration = checker.getExaminationDurationDelegate(_type, _level);
         r.lowCost = 10000;
         r.costUnit = "MATIC";
@@ -225,5 +239,16 @@ contract Reward is Ownable {
 
     function getPreSBTMetaByExam(string memory _examId) external view returns (SourceDaoReward memory) {
         return examIdToPreRewardMeta[_examId];
+    }
+
+    function getPreExamSBTMeta(uint8 _type, uint8 _level) external view returns (string[6] memory) {
+        uint16 qduration = checker.getExaminationDurationDelegate(_type, _level);
+        uint qsize = checker.getQuestionSize(_type, _level);
+        uint16 expire = checker.getExamExpire(_type, _level);
+
+        // 认证机构，考试时长，题目数量，有效期，考试门槛（数量+单位）
+        string[6] memory staticSBTMeta = ["SourceDAO", Strings.toString(qduration), Strings.toString(qsize), 
+                Strings.toString(expire), "10000", "MATIC"];
+        return staticSBTMeta;
     }
 }
