@@ -45,10 +45,10 @@ contract Examination is IExamination, Ownable {
     function setDefault(address repoAddr) external onlyOwner {
         _questionRepo = IQuestionRepo(repoAddr);
         
-        //addExaminationType(1, unicode"通识类");
+        //addExaminationType(1, unicode"区块链通识");
         ExamType storage eType = _examTypes[1];
         eType.typeId = 1;
-        eType.name = unicode"通识类";
+        eType.name = unicode"区块链通识";
         _examTypeIds.push(1);
 
         // 添加考试难度

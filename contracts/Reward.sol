@@ -30,7 +30,6 @@ contract Reward is Ownable {
         string picContent;  // 图片内容，例如IPFS hash
     }
 
-    mapping(uint8 => mapping(uint8 => uint8)) passLines;
     // 每个SBT的元信息
     mapping(uint256 => SourceDaoReward) tokenIdToRewardMeta;
     // 每个预mint SBT的元信息
@@ -71,8 +70,6 @@ contract Reward is Ownable {
     function setDefault(address sbtAddr, address checkerAddr) external onlyOwner {
         sbt = SBT(sbtAddr);
         checker = CheckAnswer(checkerAddr);
-        //reward.setPassLine(1, 1, 60);
-        passLines[1][1] = 60;
     }
     
     function _mint(string memory _examId, uint8 _type, uint8 _level, uint8 score) private {
@@ -125,9 +122,7 @@ contract Reward is Ownable {
         require(examIdToTokenId[_examId] == 0, "ExamMintYet");
 
         checker.setAnswers(_examId, _answers, _score);
-        uint8 passLine = passLines[_type][_level];
-        require(passLine > 0, "passline");
-        if (_score >= passLine) {
+        if (_score >= 60) {
             _mint(_examId, _type, _level, _score);
         }
         
@@ -144,9 +139,7 @@ contract Reward is Ownable {
         
         checker.check(_examId, _answers);
         uint8 score = checker.getScore(_examId);
-        uint8 passLine = passLines[_type][_level];
-        require(passLine > 0, "passline");
-        if (score >= passLine) {
+        if (score >= 60) {
             _mint(_examId, _type, _level, score);
         }
         
