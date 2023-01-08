@@ -48,7 +48,7 @@ contract Reward is Ownable {
 
     event SetCheckAnswer(address checkerAddr);
     event SetSBTContract(address sbtAddr);
-    event RewardEvent(address indexed sender, uint8 qtype, uint8 qlevel, uint8 score, bool pass);
+    event RewardEvent(address indexed sender, uint8 qtype, uint8 qlevel, uint8 score);
 
 
     function setSBTContract(address sbtAddr) external onlyOwner {
@@ -61,10 +61,6 @@ contract Reward is Ownable {
         checker = CheckAnswer(checkerAddr);
 
         emit SetCheckAnswer(checkerAddr);
-    }
-
-    function setPassLine(uint8 _type, uint8 _level, uint8 _score) external onlyOwner {
-        passLines[_type][_level] = _score;
     }
 
     function setDefault(address sbtAddr, address checkerAddr) external onlyOwner {
@@ -126,7 +122,7 @@ contract Reward is Ownable {
             _mint(_examId, _type, _level, _score);
         }
         
-        emit RewardEvent(msg.sender, _type, _level, _score, _score >= passLine);
+        emit RewardEvent(msg.sender, _type, _level, _score);
     }
 
     function checkAndTryReward(
@@ -143,7 +139,7 @@ contract Reward is Ownable {
             _mint(_examId, _type, _level, score);
         }
         
-        emit RewardEvent(msg.sender, _type, _level, score, score >= passLine);
+        emit RewardEvent(msg.sender, _type, _level, score);
     }
 
     function setSBTPicContent(uint256 _tokenId, string memory content) external {
