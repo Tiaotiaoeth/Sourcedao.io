@@ -2,7 +2,6 @@
 // Copyright (c) Sourcedao
 pragma solidity ^0.8.17;
 
-import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "./interfaces/IQuestionRepo.sol";
 import "./interfaces/IExamination.sol";
@@ -28,12 +27,9 @@ contract Examination is IExamination, Ownable {
     mapping(uint8 => mapping(uint8 => LevelPercent)) private _levelPercent;     // 不同类型和难度的试卷，各种难度题目的比例
 
     mapping(uint8 => mapping(uint8 => uint)) private _questionSizeMap; // 保存对应考试类型、难度的考题数量
-    mapping(string => mapping(string => bool)) private _idToExamDedup; // 试卷上链，试题去重
     mapping(address => string[]) private _userToExamIds;               // 用户生成的所有试卷ID
     mapping(string => UserExamination) private _idToExamination;       // 试卷上链，包含试题列表
 
-    using Counters for Counters.Counter;
-    Counters.Counter private _randSeed;
     IQuestionRepo _questionRepo;
 
     function setQuestionRepo(address repoAddr) external onlyOwner {
@@ -42,6 +38,7 @@ contract Examination is IExamination, Ownable {
         emit SetQuestionRepo(repoAddr);
     }
 
+    // 合约初始化
     function setDefault(address repoAddr) external onlyOwner {
         _questionRepo = IQuestionRepo(repoAddr);
         
@@ -88,7 +85,10 @@ contract Examination is IExamination, Ownable {
         _examExpire[1][1] = 3;
     }
 
-    function addExaminationType(uint8 qtype, string memory name) external onlyOwner {
+    function addExaminationType(
+        uint8 qtype, 
+        string memory name
+    ) external onlyOwner {
         require(_examTypes[qtype].typeId == 0, "DupType");
 
         ExamType storage eType = _examTypes[qtype];
@@ -99,7 +99,10 @@ contract Examination is IExamination, Ownable {
         emit AddExaminationType(qtype, name);
     }
 
-    function addExaminationLevel(uint8 qlevel, string memory name) external onlyOwner {
+    function addExaminationLevel(
+        uint8 qlevel, 
+        string memory name
+    ) external onlyOwner {
         require(_examLevels[qlevel].levelId == 0, "DupLevel");
 
         ExamLevel storage eLevel = _examLevels[qlevel];
@@ -110,7 +113,11 @@ contract Examination is IExamination, Ownable {
         emit AddExaminationLevel(qlevel, name);
     }
 
-    function setExaminationDuration(uint8 qtype, uint8 qlevel, uint16 qminutes) external onlyOwner {
+    function setExaminationDuration(
+        uint8 qtype, 
+        uint8 qlevel, 
+        uint16 qminutes
+    ) external onlyOwner {
         _examDuration[qtype][qlevel] = qminutes;
 
         emit SetExaminationDuration(qtype, qlevel, qminutes);
@@ -118,20 +125,34 @@ contract Examination is IExamination, Ownable {
 
     // 只有合约拥有者可以设置每种考试的题目数量，
     // 每种考试由考试类型和难度决定
-    function setSizeMap(uint8 _type, uint8 _level, uint _size) external onlyOwner {
+    function setSizeMap(
+        uint8 _type, 
+        uint8 _level, 
+        uint _size
+    ) external onlyOwner {
         _questionSizeMap[_type][_level] = _size;
 
         emit SetExaminationSize(_type, _level, _size);
     }
 
-    function setLevelPercent(uint8 _type, uint8 _level, uint8 _hardPct, uint8 _normalPct, uint8 _easyPct) external onlyOwner {
+    function setLevelPercent(
+        uint8 _type, 
+        uint8 _level, 
+        uint8 _hardPct, 
+        uint8 _normalPct, 
+        uint8 _easyPct
+    ) external onlyOwner {
         LevelPercent storage lp = _levelPercent[_type][_level];
         lp.hardPct = _hardPct;
         lp.normalPct = _normalPct;
         lp.easyPct = _easyPct;
     }
 
-    function setExpire(uint8 _type, uint8 _level, uint16 _expire) external onlyOwner {
+    function setExpire(
+        uint8 _type, 
+        uint8 _level, 
+        uint16 _expire
+    ) external onlyOwner {
         _examExpire[_type][_level] = _expire;
 
         emit SetExaminationExpire(_type, _level, _expire);
@@ -150,12 +171,14 @@ contract Examination is IExamination, Ownable {
     }
 
     // 生成一次测试
-    function genExam(string memory _examId, uint8 _type, uint8 _level) external {
+    function genExam(
+        string memory _examId, 
+        uint8 _type, 
+        uint8 _level
+    ) external {
         require(_idToExamination[_examId]._questions.length == 0, "ExamGeneratedYet");
         // 试题数量
         uint size = _questionSizeMap[_type][_level];
-        // 随机挑选试题，去重
-        mapping(string => bool) storage dedup = _idToExamDedup[_examId];
         UserExamination storage userExam = _idToExamination[_examId];
         userExam._time = block.timestamp;
         userExam._type = _type;
@@ -164,43 +187,22 @@ contract Examination is IExamination, Ownable {
 
         LevelPercent storage lp = _levelPercent[_type][_level];
         // 先生成简单题目
-        uint8 qlevel = 1;
         uint levelSize = size * lp.easyPct / 100;
-        for (uint i = 0; i < levelSize;) {
-            _randSeed.increment();
-            uint256 randInt = _randSeed.current();
-            string memory qhash = _questionRepo.randQuestion(_type, qlevel, randInt);
-            if (!dedup[qhash]) {
-                dedup[qhash] = true;
-                userExam._questions.push(qhash);
-                i++;
-            }
+        string[] memory qhashs1 = _questionRepo.randQuestion(_type, 1, levelSize);
+        for (uint i = 0; i < levelSize;i++) {
+            userExam._questions.push(qhashs1[i]);
         }
         // 生成普通题目
-        qlevel = 2;
         levelSize = size * lp.normalPct / 100;
-        for (uint i = 0; i < levelSize;) {
-            _randSeed.increment();
-            uint256 randInt = _randSeed.current();
-            string memory qhash = _questionRepo.randQuestion(_type, qlevel, randInt);
-            if (!dedup[qhash]) {
-                dedup[qhash] = true;
-                userExam._questions.push(qhash);
-                i++;
-            }
+        string[] memory qhashs2 = _questionRepo.randQuestion(_type, 2, levelSize);
+        for (uint i = 0; i < levelSize; i++) {
+            userExam._questions.push(qhashs2[i]);
         }
         // 生成难题
-        qlevel = 3;
         levelSize = size * lp.hardPct / 100;
-        for (uint i = 0; i < levelSize;) {
-            _randSeed.increment();
-            uint256 randInt = _randSeed.current();
-            string memory qhash = _questionRepo.randQuestion(_type, qlevel, randInt);
-            if (!dedup[qhash]) {
-                dedup[qhash] = true;
-                userExam._questions.push(qhash);
-                i++;
-            }
+        string[] memory qhashs3 = _questionRepo.randQuestion(_type, 3, levelSize);
+        for (uint i = 0; i < levelSize; i++) {
+            userExam._questions.push(qhashs3[i]);
         }
 
         emit GenerateExamination(msg.sender, _type, _level, size);
