@@ -12,9 +12,10 @@
         
         let repo = await factory.deploy(...constructorArgs);
         await repo.deployed()
-        console.log('question repo deployed at:'+ repo.address);
+        let repoAddr = repo.address;
+        console.log('question repo deployed at:'+ repoAddr);
 
-        // 设置不能难度题目的分值
+        // 设置不同难度题目的分值
         //await repo.setLevelScore(1, 2);     // 初级题目，分值为2
         //await repo.setLevelScore(2, 3);     // 中级题目，分值为3
         //await repo.setLevelScore(3, 5);     // 高级题目，分值为5
@@ -34,7 +35,7 @@
 
         /*
         // 设置题库合约地址
-        await exam.setQuestionRepo(repo.address);
+        await exam.setQuestionRepo(repoAddr);
         // 添加考试类型
         await exam.addExaminationType(1, "通识类");
         // 添加考试难度
@@ -50,7 +51,7 @@
         const examMinutes = 20;
         await exam.setExaminationDuration(1, 2, examMinutes);
         */
-        await exam.setDefault(repo.address);
+        await exam.setDefault(repoAddr);
         
         //// 初始化阅卷合约
         contractName = 'CheckAnswer'
@@ -65,9 +66,9 @@
         console.log('CheckAnswer deployed at:'+ checker.address);
         
         // 设置题库和试卷合约地址
-        //checker.setQuestionRepo(repo.address);
+        //checker.setQuestionRepo(repoAddr);
         //checker.setExamination(exam.address);
-        await checker.setDefault(repo.address, exam.address);
+        await checker.setDefault(repoAddr, exam.address);
 
         //// 初始化SBT合约
         contractName = 'SBT'
@@ -116,7 +117,7 @@
         // 设置合约地址
         //wl.setExamForWorkflow(exam.address);
         //wl.setReward(reward.address);
-        await wl.setDefault(exam.address, reward.address);
+        await wl.setDefault(exam.address, checker.address, reward.address);
         
         console.log('Deployment successful.')
     } catch (e) {

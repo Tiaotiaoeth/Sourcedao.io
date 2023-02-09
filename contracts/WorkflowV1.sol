@@ -10,12 +10,14 @@ import "./Reward.sol";
  */
 contract WorkflowV1 is Ownable {
     Examination _examination;
+    CheckAnswer _checker;
     Reward _reward;
 
     // 不同类型考试的介绍，中文
     mapping(uint8 => string) private _typeIntroduction;
 
     event SetExamForWorkflow(address examAddr);
+    event SetCheckerForWorkflow(address checkerAddr);
     event SetReward(address rewardAddr);
 
     function setExamForWorkflow(address examAddr) external onlyOwner {
@@ -24,32 +26,60 @@ contract WorkflowV1 is Ownable {
         emit SetExamForWorkflow(examAddr);
     }
 
+    function setCheckerForWorkflow(address checkerAddr) external onlyOwner {
+        _checker = CheckAnswer(checkerAddr);
+
+        emit SetRSetCheckerForWorkfloweward(checkerAddr);
+    }
+
     function setReward(address rewardAddr) external onlyOwner {
         _reward = Reward(rewardAddr);
 
         emit SetReward(rewardAddr);
     }
 
-    function setIntroduction(uint8 _type, string memory _intro) external onlyOwner {
+    function setIntroduction(
+        uint8 _type, 
+        string memory _intro
+    ) external onlyOwner {
         _typeIntroduction[_type] = _intro;
     }
 
-    function setDefault(address examAddr, address rewardAddr) external onlyOwner {
+    function setDefault(
+        address examAddr, 
+        address checkerAddr, 
+        address rewardAddr
+    ) external onlyOwner {
         _examination = Examination(examAddr);
+        _checker = CheckAnswer(checkerAddr);
         _reward = Reward(rewardAddr);
 
-        _typeIntroduction[1] = unicode"区块链通识认证（BGA-Blockchain General Authentication）是面向区块链领域的基础认证，主要涉及区块链的特性、适用领域、运转机制以及区块链的分布式、密码学、智能合约、网络、存储等核心内容。是对用户掌握区块链基础知识、主要数字资产、重要区块链产品与服务等知识水平的全面检验和能力认证，主要面向初级用户以及初级开发者，也可以作为区块链的入门证书。";
-        //Introduction: BGA -Blockchain General Authentication is a basic authentication oriented to the blockchain field, which mainly involves the characteristics, application fields, operation mechanism, distribution, cryptography, smart contract, network, storage and other core contents of the blockchain.It is a comprehensive test and ability certification for users to master blockchain basic knowledge, major digital assets, important blockchain products and services and other knowledge levels.It is mainly for junior users and developers, and can also be used as the entry certificate of blockchain.
+        _typeIntroduction[1] = "BGA -Blockchain General Authentication is a basic authentication oriented to the blockchain field, which mainly involves the characteristics, application fields, operation mechanism, distribution, cryptography, smart contract, network, storage and other core contents of the blockchain.It is a comprehensive test and ability certification for users to master blockchain basic knowledge, major digital assets, important blockchain products and services and other knowledge levels.It is mainly for junior users and developers, and can also be used as the entry certificate of blockchain."
+        //unicode"区块链通识认证（BGA-Blockchain General Authentication）是面向区块链领域的基础认证，主要涉及区块链的特性、适用领域、运转机制以及区块链的分布式、密码学、智能合约、网络、存储等核心内容。是对用户掌握区块链基础知识、主要数字资产、重要区块链产品与服务等知识水平的全面检验和能力认证，主要面向初级用户以及初级开发者，也可以作为区块链的入门证书。";
     }
 
-    function prepare(string memory _examId, uint8 _type, uint8 _level) external {
+    function prepare(
+        address _to,
+        string memory _examId, 
+        uint8 _type, 
+        uint8 _level
+    ) external {
         // 第一步，生成试卷
-        _examination.genExam(_examId, _type, _level);
+        _examination.delegateGenerateExam(_to, _examId, _type, _level);
         // 第二步，预生成SBT
         _reward.prefetchSBTMetaByExam(_examId, _type, _level);
     }
 
-    function submit(address _to, string memory _examId, uint8 _score, string memory _picContent) external {
+    function submit(
+        address _to, 
+        string memory _examId, 
+        uint8 _score, 
+        uint8[] calldata _answers,
+        string memory _picContent
+    ) external {
+        // 上传试题答案
+        _checker.setAnswers(_examId, _answers, uint8 _score)；
+        // 生成SBT
         _reward.postSBTMetaByExam(_to, _examId, _score, _picContent);
     }
 

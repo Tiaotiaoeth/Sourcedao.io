@@ -14,7 +14,7 @@ interface IExamination {
         uint8 levelId;
         string name;
     }
-        
+    
     struct UserExamination {
         uint _time;         // 试卷生成时间
         uint8 _type;        // 考试类型
@@ -46,4 +46,6 @@ interface IExamination {
     function getExaminationDuration(uint8 qtype, uint8 qlevel) external view returns (uint16);
     function getExamsByUser(address _user) external view returns (string[] memory);
     function getExaminationMeta(string memory _examId) external view returns (UserExamination memory);
+    function getTypeName(uint8 _type) external view returns (string memory);
+    function getLevelName(uint8 _level) external view returns (string memory);
 }

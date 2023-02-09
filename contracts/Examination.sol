@@ -45,26 +45,26 @@ contract Examination is IExamination, Ownable {
         //addExaminationType(1, unicode"区块链通识");
         ExamType storage eType = _examTypes[1];
         eType.typeId = 1;
-        eType.name = unicode"区块链通识";
+        eType.name = "Blockchain General Authentication"; // unicode"区块链通识";
         _examTypeIds.push(1);
 
         // 添加考试难度
         //addExaminationLevel(1, unicode"初级");
         ExamLevel storage eLevel1 = _examLevels[1];
         eLevel1.levelId = 1;
-        eLevel1.name = unicode"初级";
+        eLevel1.name = "Primary"; //unicode"初级";
         _examLevelIds.push(1);
 
         //addExaminationLevel(2, unicode"中级");
         ExamLevel storage eLevel2 = _examLevels[2];
         eLevel2.levelId = 2;
-        eLevel2.name = unicode"中级";
+        eLevel2.name = "Intermediate"; //unicode"中级";
         _examLevelIds.push(2);
 
         //addExaminationLevel(3, unicode"高级");
         ExamLevel storage eLevel3 = _examLevels[3];
         eLevel3.levelId = 3;
-        eLevel3.name = unicode"高级";
+        eLevel3.name = "Advanced"; //unicode"高级";
         _examLevelIds.push(3);
 
         // 设置不同难度试卷的题目数量
@@ -158,24 +158,33 @@ contract Examination is IExamination, Ownable {
         emit SetExaminationExpire(_type, _level, _expire);
     }
 
-    function getSize(uint8 _type, uint8 _level) external view returns (uint) {
+    function getSize(
+        uint8 _type, 
+        uint8 _level
+    ) external view returns (uint) {
         return _questionSizeMap[_type][_level];
     }
 
-    function getExpire(uint8 _type, uint8 _level) external view returns (uint16) {
+    function getExpire(
+        uint8 _type, 
+        uint8 _level
+    ) external view returns (uint16) {
         return _examExpire[_type][_level];
     }
 
-    function getExam(string memory _examId) external view returns (string[] memory) {
+    function getExam(
+        string memory _examId
+    ) external view returns (string[] memory) {
         return _idToExamination[_examId]._questions;
     }
 
-    // 生成一次测试
-    function genExam(
+    // 代理生成一次测试
+    function delegateGenerateExam(
+        address _to,
         string memory _examId, 
         uint8 _type, 
         uint8 _level
-    ) external {
+    ) public {
         require(_idToExamination[_examId]._questions.length == 0, "ExamGeneratedYet");
         // 试题数量
         uint size = _questionSizeMap[_type][_level];
@@ -205,10 +214,19 @@ contract Examination is IExamination, Ownable {
             userExam._questions.push(qhashs3[i]);
         }
 
-        emit GenerateExamination(msg.sender, _type, _level, size);
+        emit GenerateExamination(_to, _type, _level, size);
         // 试卷上链
-        string[] storage examIds = _userToExamIds[msg.sender];
+        string[] storage examIds = _userToExamIds[_to];
         examIds.push(_examId);
+    }
+
+    // 由用户直接调用，生成试卷
+    function genExam(
+        string memory _examId, 
+        uint8 _type, 
+        uint8 _level
+    ) external {
+        delegateGenerateExam(msg.sender, _examId, _type, _level);
     }
 
     function listTypes() external view returns (ExamType[] memory) {
@@ -229,15 +247,34 @@ contract Examination is IExamination, Ownable {
         return levels;
     }
     
-    function getExaminationDuration(uint8 qtype, uint8 qlevel) external view returns (uint16) {
+    function getExaminationDuration(
+        uint8 qtype, 
+        uint8 qlevel
+    ) external view returns (uint16) {
         return _examDuration[qtype][qlevel];
     }
 
-    function getExamsByUser(address _user) external view returns (string[] memory) {
+    function getExamsByUser(
+        address _user
+    ) external view returns (string[] memory) {
         return _userToExamIds[_user];
     }
 
-    function getExaminationMeta(string memory _examId) external view returns (UserExamination memory) {
+    function getExaminationMeta(
+        string memory _examId
+    ) external view returns (UserExamination memory) {
         return _idToExamination[_examId];
+    }
+
+    function getTypeName(
+        uint8 _type
+    ) external view returns (string memory) {
+        return _examTypes[_type].name;
+    }
+
+    function getLevelName(
+        uint8 _level
+    ) external view returns (string memory) {
+        return _examLevels[_level].name;
     }
 }

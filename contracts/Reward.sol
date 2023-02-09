@@ -63,12 +63,36 @@ contract Reward is Ownable {
         emit SetCheckAnswer(checkerAddr);
     }
 
-    function setDefault(address sbtAddr, address checkerAddr) external onlyOwner {
+    function setDefault(
+        address sbtAddr, 
+        address checkerAddr
+    ) external onlyOwner {
         sbt = SBT(sbtAddr);
         checker = CheckAnswer(checkerAddr);
     }
     
-    function _mint(string memory _examId, uint8 _type, uint8 _level, uint8 score) private {
+    function getScoreAbility(
+        uint8 score
+    ) private pure returns (string memory) {
+        if (score >= 90) {
+            return "High Distinction";
+        } else if (score >= 80) {
+            return "Distinction";
+        } else if (score >= 70) {
+            return "Credit";
+        } else if (score >= 60) {
+            return "Pass";
+        } else {
+            return "Fail";
+        }
+    }
+
+    function _mint(
+        string memory _examId, 
+        uint8 _type, 
+        uint8 _level, 
+        uint8 score
+    ) private {
         idCounter.increment();
         uint256 tokenId = idCounter.current();
 
@@ -89,20 +113,9 @@ contract Reward is Ownable {
         r.lowCost = 10000;
         r.costUnit = "MATIC";
         r.score = score;
+        r.ability = getScoreAbility(score);
         r.owner = msg.sender;
         r.examId = _examId;
-
-        if (score >= 90) {
-            r.ability = "High Distinction";
-        } else if (score >= 80) {
-            r.ability = "Distinction";
-        } else if (score >= 70) {
-            r.ability = "Credit";
-        } else if (score >= 60) {
-            r.ability = "Pass";
-        } else {
-            r.ability = "Fail";
-        }
 
         sbt.safeMint(msg.sender, tokenId);
         balanceList[msg.sender].push(tokenId);
@@ -142,7 +155,10 @@ contract Reward is Ownable {
         emit RewardEvent(msg.sender, _type, _level, score);
     }
 
-    function setSBTPicContent(uint256 _tokenId, string memory content) external {
+    function setSBTPicContent(
+        uint256 _tokenId, 
+        string memory content
+    ) external {
         SourceDaoReward storage r = tokenIdToRewardMeta[_tokenId];
         require(bytes(r.picContent).length == 0, "PicContentSetYet");
         require(bytes(content).length > 0, "PicContentErr");
@@ -151,24 +167,32 @@ contract Reward is Ownable {
     }
 
     // 查询SBT的元信息
-    function getSBTMeta(uint256 _tokenId) public view returns (SourceDaoReward memory) {
+    function getSBTMeta(
+        uint256 _tokenId
+    ) public view returns (SourceDaoReward memory) {
         return tokenIdToRewardMeta[_tokenId];
     }
 
-    function getSBTMetaByExam(string memory _examId) external view returns (SourceDaoReward memory) {
+    function getSBTMetaByExam(
+        string memory _examId
+    ) external view returns (SourceDaoReward memory) {
         uint256 _tokenId = getTokenId(_examId);
         return getSBTMeta(_tokenId);
     }
 
     // 查询考试的SBT id
-    function getTokenId(string memory _examId) public view returns (uint256) {
+    function getTokenId(
+        string memory _examId
+    ) public view returns (uint256) {
         require(examIdToTokenId[_examId] > 0, "NoSBT");
         
         return examIdToTokenId[_examId];
     }
 
     // 查询一个用户获得的所有SBT id列表
-    function getTokensByUser(address user) external view returns (uint256[] memory) {
+    function getTokensByUser(
+        address user
+    ) external view returns (uint256[] memory) {
         return balanceList[user];
     }
 
@@ -213,10 +237,10 @@ contract Reward is Ownable {
         string memory _picContent
     ) external {
         require(bytes(_picContent).length > 0, "PicContentErr");
-
         
         SourceDaoReward storage r = examIdToPreRewardMeta[_examId];
         r.score = _score;
+        r.ability = getScoreAbility(_score);
         r.picContent = _picContent;
         uint256 _tokenId = r.id;
         examIdToTokenId[_examId] = _tokenId;
@@ -226,11 +250,16 @@ contract Reward is Ownable {
         balanceList[_to].push(_tokenId);
     }
 
-    function getPreSBTMetaByExam(string memory _examId) external view returns (SourceDaoReward memory) {
+    function getPreSBTMetaByExam(
+        string memory _examId
+    ) external view returns (SourceDaoReward memory) {
         return examIdToPreRewardMeta[_examId];
     }
 
-    function getPreExamSBTMeta(uint8 _type, uint8 _level) external view returns (string[6] memory) {
+    function getPreExamSBTMeta(
+        uint8 _type, 
+        uint8 _level
+    ) external view returns (string[6] memory) {
         uint16 qduration = checker.getExaminationDurationDelegate(_type, _level);
         uint qsize = checker.getQuestionSize(_type, _level);
         uint16 expire = checker.getExamExpire(_type, _level);
