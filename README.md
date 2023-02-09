@@ -6,7 +6,7 @@ The project of SourceDAO.
 
 ### 临时考试流程：为了减少用户支付gas的次数，牺牲一些安全性
 1. 生成试卷和提前mint SBT
-调用WorkflowV.sol合约的function prepare(string _examId, uint8 _type, uint8 _level)函数。这一步需要支付gas。
+调用WorkflowV.sol合约的function prepare(address _to, string _examId, uint8 _type, uint8 _level)函数。其中_to是考试者的地址。这一步需要支付gas。
 然后可以调用Examination.sol合约的getExam(string _examId) returns (string[])获取试卷。
 批改之后，可以调用Reward.sol合约的getPreSBTMetaByExam(string _examId) returns (SourceDaoReward)，返回数据结构为
     struct SourceDaoReward {
@@ -32,10 +32,16 @@ The project of SourceDAO.
         string picContent;  // 图片内容，例如IPFS hash
     }
 2. 上传分数和SBT图片
-调用WorkflowV.sol合约的submit(address _to, string _examId, uint8 _score, string _picContent)，其中_to是用户的钱包地址，_picContent是图片的IPFS hash。调用这种函数后，会将提前mint的SBT存储在链上，这一步需要支付gas。
+调用WorkflowV.sol合约的submit(address _to, string _examId, uint8 _score, uint8[] _answers, string _picContent)，其中_to是用户的钱包地址，_picContent是图片的IPFS hash。调用这种函数后，会将提前mint的SBT存储在链上，这一步需要支付gas。
 
 3. 考试前获取SBT配置信息
-调用Reward.sol合约的getPreExamSBTMeta(uint8 _type, uint8 _level) returns (string[] memory)返回字符串数组，成员分别为[认证机构，考试时长，题目数量，有效期（月），考试门槛（数量+单位）]
+调用Reward.sol合约的getPreExamSBTMeta(uint8 _type, uint8 _level) returns (string[])返回字符串数组，成员分别为[认证机构，考试时长，题目数量，有效期（月），考试门槛（数量+单位）]
+
+调用Examination.sol的
+    getTypeName(uint _type) returns (string)
+和
+    getLevelName(uint _level) returns (string)
+可以分别获得考试类型和考试难度的文本。
 
 4. 获取考试简介
 调用WorkflowV1.sol合约的getIntroduction(uint8 _type) returns (string) 接口，_type是考试类型。

@@ -26,19 +26,26 @@ contract CheckAnswer is Ownable {
     event SetQuestionRepo(address repoAddr);
     event SetExamination(address examAddr);
 
-    function setQuestionRepo(address repoAddr) external onlyOwner {
+    function setQuestionRepo(
+        address repoAddr
+    ) external onlyOwner {
         _questionRepo = IQuestionRepo(repoAddr);
 
         emit SetQuestionRepo(repoAddr);
     }
 
-    function setExamination(address examAddr) external onlyOwner {
+    function setExamination(
+        address examAddr
+    ) external onlyOwner {
         _examination = IExamination(examAddr);
 
         emit SetExamination(examAddr);
     }
 
-    function setDefault(address repoAddr, address examAddr) external onlyOwner {
+    function setDefault(
+        address repoAddr, 
+        address examAddr
+    ) external onlyOwner {
         _questionRepo = IQuestionRepo(repoAddr);
         _examination = IExamination(examAddr);
     }
@@ -88,33 +95,50 @@ contract CheckAnswer is Ownable {
         ans.userAnswers = _answers;
     }
 
-    function getScore(string memory _examId) external view returns (uint8) {
+    function getScore(
+        string memory _examId
+    ) external view returns (uint8) {
         return _idToExamAnswers[_examId].score;
     }
 
-    function getAnswers(string memory _examId) external view returns (uint8[] memory) {
+    function getAnswers(
+        string memory _examId
+    ) external view returns (uint8[] memory) {
         require(_idToExamAnswers[_examId].score > 0, "NotChecked!");
 
         return _idToExamAnswers[_examId].userAnswers;
     }
 
-    function getCheckedExaminationByUser(address _user) external view returns (string[] memory) {
+    function getCheckedExaminationByUser(
+        address _user
+    ) external view returns (string[] memory) {
         return _userToExamIds[_user];
     }
 
-    function getCheckedExamination(string memory _examId) external view returns (CheckedExamination memory) {
+    function getCheckedExamination(
+        string memory _examId
+    ) external view returns (CheckedExamination memory) {
         return _idToExamAnswers[_examId];
     }
 
-    function getQuestionSize(uint8 _type, uint8 _level) external view returns (uint) {
+    function getQuestionSize(
+        uint8 _type, 
+        uint8 _level
+    ) external view returns (uint) {
         return _examination.getSize(_type, _level);
     }
 
-    function getExamExpire(uint8 _type, uint8 _level) external view returns (uint16) {
+    function getExamExpire(
+        uint8 _type, 
+        uint8 _level
+    ) external view returns (uint16) {
         return _examination.getExpire(_type, _level);
     }
 
-    function getExaminationDurationDelegate(uint8 qtype, uint8 qlevel) external view returns (uint16) {
+    function getExaminationDurationDelegate(
+        uint8 qtype, 
+        uint8 qlevel
+    ) external view returns (uint16) {
         return _examination.getExaminationDuration(qtype, qlevel);
     }
 
