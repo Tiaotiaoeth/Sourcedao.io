@@ -1,0 +1,82 @@
+.sbt {
+  width: 300px;
+  height: 400px;
+  border-radius: 10px;
+  background: #000 url("../../assets/images/sbt/bg.png") no-repeat 0px 2px;
+  color: #fff;
+  overflow: hidden;
+  position: fixed;
+  left: -2000px;
+  > .sbt_text {
+    font-size: 14px;
+    line-height: 18px;
+    text-align: center;
+    font-family: "Space Grotesk";
+    margin-top: 108px;
+    margin-bottom: 12px;
+  }
+  > .sbt_name {
+    width: 175px;
+    height: 54px;
+    margin: 0 auto;
+    font-size: 14px;
+    line-height: 19px;
+    text-align: center;
+    text-shadow: 0px 0px 10px #FFFFFF;
+    font-family: "Alfa Slab One";
+    margin-bottom: 16px;
+  }
+  > .sbt_sourc {
+    font-size: 20px;
+    line-height: 24px;
+    text-align: center;
+    text-shadow: 0px 0px 4px rgba(0, 0, 0, 0.25);
+    font-family: "Brush Script MT";
+    margin-bottom: 11px;
+  }
+  > .sbt_addressImg {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 2px;
+    > img {
+      width: 24px;
+      height: 24px;
+    }
+  }
+  >.sbt_address {
+    width: 156px;
+    font-size: 12px;
+    line-height: 14px;
+    word-break: break-all; 
+    font-family: "Space Grotesk";
+    margin: 0 auto 32px;
+    transform: scale(0.9);
+  }
+  > .sbt_bottom {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    margin-right: 27px;
+    position: relative;
+    > .sbt_bottom_date {
+      font-size: 12px;
+      line-height: 14px;
+      font-family: "Space Grotesk";
+      transform-origin: right bottom;
+      transform: scale(0.9);
+      margin-bottom: 4px;
+    }
+    > .sbt_bottom_org {
+      font-size: 12px;
+      line-height: 14px;
+      font-weight: 900;
+    }
+    > .sbt_bottom_mask {
+      position: absolute;
+      top: -34px;
+      right: 0;
+      width: 49px;
+      height: 49px;
+    }
+  }
+}

@@ -1,93 +1,108 @@
-import React, { useState, useEffect, useContext, SyntheticEvent } from 'react'
+import React, { useState, lazy, Suspense } from 'react'
 
-import { LANG, SOURCE_LANG_LOCAL } from '@constants/lang'
+import {
+  Box,
+  AppBar,
+  Toolbar,
+  IconButton,
+  Menu,
+  MenuItem,
+  Button,
+} from '@mui/material'
+
+import LanguageIcon from '@mui/icons-material/Language'
+
+import Jazzicon, { jsNumberForAddress } from 'react-jazzicon'
+
+import { useSnackbar } from 'notistack'
+
+import LOCAL from '@constants/local'
+
+import langHook from '@hooks/localHook'
 
 import { headerLang } from '@langs/index'
 
-import langHook from '@hooks/langHook'
+import { useAppSelector, useAppDispatch } from '@store/index'
 
-import { LangContext } from '@views/Home/langContext'
+import { setLocal } from '@store/modules/local'
+import { setDialogOpen } from '@store/modules/wallet'
 
-import './index.less'
+import { truncateMiddle } from '@utils/index'
 
-import logoImg from '@img/header/logo.png'
-import localImg from '@img/header/local.png'
+const WallteDialog = lazy(() => import('@components/WallteDialog'))
 
-interface HeaderProps {
-  routerIndex: number
-  toSlide: (index: number) => void
-}
 
-const router = [
-  headerLang.home,
-  headerLang.roadmap,
-  headerLang.team,
-  headerLang.medium,
-]
+export default (): JSX.Element => {
 
-export default ({ routerIndex, toSlide }: HeaderProps): JSX.Element => {
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
 
-  const [popShow, setPopShow] = useState(false)
 
-  const { lang, setLang } = useContext(LangContext)
+  const open = !!anchorEl
+
+  const { accountAddress } = useAppSelector(state => state.wallet)
+
+  const dispatch = useAppDispatch()
 
   const local = langHook()
 
-  const handlePop = (event: SyntheticEvent<EventTarget>) => {
-    event.stopPropagation()
-    setPopShow(!popShow)
+  const { enqueueSnackbar } = useSnackbar()
+
+  const handleLocal = (lang: LOCAL) => {
+    setAnchorEl(null)
+    dispatch(setLocal(lang))
   }
 
-  const handleLocal = (lang: LANG) => {
-    window.localStorage.setItem(SOURCE_LANG_LOCAL, lang)
-    setLang(lang)
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(accountAddress)
+    enqueueSnackbar(
+      local(headerLang.copied),
+      {
+        variant: 'success',
+      })
   }
-
-  const handleDoc = () => setPopShow(false)
-
-  const handleRoute = (event: SyntheticEvent<EventTarget>, index: number) => {
-    event.preventDefault()
-    toSlide(index)
-  }
-
-  useEffect(() => {
-    document.addEventListener('click', handleDoc)
-    return () => {
-      document.removeEventListener('click', handleDoc)
-    }
-  }, [])
 
   return (
-    <div className="header">
-      <div className="header_w">
-        <div className="header_w_logo">
-          <img src={logoImg} alt="" />
-        </div>
-        <div className="header_w_buttons">
-          <ul className="h_w_b_router">
-            {
-              router.map((route, index) => {
-                return (
-                  <li className={routerIndex === index ? 'h_w_b_r_current' : ''} key={index}>
-                    {index > 0 ? <span>/</span> : <></>}
-                    <a href="#" onClick={(event) => handleRoute(event, index)}>{local(route)}</a>
-                  </li>
-                )
-              })
-            }
-          </ul>
-          <div className="h_w_b_lang" onClick={handlePop}>
-            <img src={localImg} alt="" />
-            {popShow && (
-              <ul className="h_w_b_l_pop">
-                <li className={lang === LANG.en_us ? 'h_w_b_l_p_current' : ''} onClick={() => handleLocal(LANG.en_us)}>English</li>
-                <li className={lang === LANG.zh_cn ? 'h_w_b_l_p_current' : ''} onClick={() => handleLocal(LANG.zh_cn)}>简体中文</li>
-              </ul>
-            )}
-          </div>
-        </div>
-      </div>
-    </div>
+    <Box>
+      {/* AppBar */}
+      <AppBar position="static">
+        <Toolbar>
+          <Box sx={{ flexGrow: 1 }} />
+          <IconButton
+            size="large"
+            edge="start"
+            color="inherit"
+            aria-label="menu"
+            sx={{ mr: 2 }}
+            onClick={event => setAnchorEl(event.currentTarget)}
+          >
+            <LanguageIcon />
+          </IconButton>
+          <Menu
+            anchorEl={anchorEl}
+            open={open}
+            onClose={() => setAnchorEl(null)}
+          >
+            <MenuItem onClick={() => handleLocal(LOCAL.zh_cn)}>简体中文</MenuItem>
+            <MenuItem onClick={() => handleLocal(LOCAL.en_us)}>English</MenuItem>
+          </Menu>
+          {
+            accountAddress
+              ? <Button color="inherit"
+                startIcon={<Jazzicon diameter={20} seed={jsNumberForAddress(accountAddress)} />}
+                onClick={handleCopy}
+              >
+                {truncateMiddle(accountAddress)}
+              </Button>
+              : <Button color="inherit" onClick={() => dispatch(setDialogOpen(true))}>{local(headerLang.wallet)}</Button>
+          }
+
+        </Toolbar>
+      </AppBar>
+      {/* WallteDialog */}
+      <Suspense>
+        <WallteDialog />
+      </Suspense>
+    </Box>
   )
 }
-

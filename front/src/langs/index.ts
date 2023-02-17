@@ -1,11 +1,15 @@
-import ctsLang from '@constants/lang'
+import LOCAL from '@constants/local'
 
 export interface Lang {
-  [ctsLang.zh_cn]: string
-  [ctsLang.en_us]: string
+  [LOCAL.zh_cn]: string
+  [LOCAL.en_us]: string
 }
 
 
-export * as homeLang from './home'
+export * as siderLang from './sider'
 export * as headerLang from './header'
-export * as footerLang from './footer'
+export * as walletLang from './wallet'
+export * as profileLang from './profile'
+export * as examLang from './exam'
+export * as certificateLang from './certificate'
+export * as introduceLang from './introduce'

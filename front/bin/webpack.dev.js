@@ -6,7 +6,7 @@ module.exports = merge(base, {
   mode: 'development',
   devtool: 'eval-source-map',
   devServer: {
-    port: 9090,
+    port: 3000,
     open: true,
     compress: true,
     hot: true, 

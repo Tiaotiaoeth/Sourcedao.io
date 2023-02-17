@@ -7,6 +7,7 @@ const CopyPlugin = require('copy-webpack-plugin')
 const WebpackBar = require('webpackbar')
 const alias = require('./config/alias')
 const extensions = require('./config/extensions')
+const NodePolyfillPlugin = require('node-polyfill-webpack-plugin')
 
 
 const isLocal = process.env.NODE_ENV === 'local'
@@ -64,7 +65,7 @@ const rules = [
       options: {
         limit: 8 * 1024,
         name: '[contenthash:8].[ext]',
-        outputPath: 'imags'
+        outputPath: 'imgs'
       }
     },
     exclude: '/node_modules/'
@@ -83,7 +84,7 @@ const rules = [
 ]
 
 module.exports = {
-  target: isLocal ? 'web' : ['web', 'es3'],
+  target: 'web',
   cache: {
     type: isLocal ? 'memory' : 'filesystem',
   },
@@ -98,7 +99,7 @@ module.exports = {
   resolve: {
     alias,
     extensions,
-    modules: [path.resolve(__dirname, '../node_modules'), 'node_modules'],
+    modules: [path.resolve(__dirname, '../src'), 'node_modules'],
   },
   module: {
     rules: [
@@ -134,6 +135,11 @@ module.exports = {
       name: isLocal ? "RUNNING" : "BUILDING",
       color: "#52c41a"
     }),
+    new webpack.ProvidePlugin({
+      Buffer: ['buffer', 'Buffer'],
+      process: 'process/browser'
+    }),
+    new NodePolyfillPlugin(),
   ],
   optimization: {
     splitChunks: {

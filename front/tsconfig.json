@@ -53,13 +53,12 @@
     "paths": {
       "@api/*": ["./src/api/*"],
       "@css/*": ["./src/assets/css/*"],
-      "@img/*": ["./src/assets/images/*"],
+      "@images/*": ["./src/assets/images/*"],
       "@views/*": ["./src/views/*"], 
       "@components/*": ["./src/components/*"], 
       "@routes/*": ["./src/routes/*"], 
       "@utils/*": ["./src/utils/*"], 
       "@constants/*": ["./src/constants/*"],
-      "@context/*": ["./src/context/*"], 
       "@langs/*": ["./src/langs/*"], 
       "@hooks/*": ["./src/hooks/*"], 
       "@store/*": ["./src/store/*"] 
