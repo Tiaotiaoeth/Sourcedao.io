@@ -1,12 +1,13 @@
-import { create, IPFSHTTPClient } from 'ipfs-http-client'
+// import { create, IPFSHTTPClient } from 'ipfs-http-client'
+import { create, IPFS } from 'ipfs-core'
 
-let _ipfs: IPFSHTTPClient | undefined = undefined
+let _ipfs: IPFS | undefined = undefined
 
 const createIpfs = async () => {
   if (_ipfs) return _ipfs
   return (_ipfs = await create({
-    host: '15.152.36.175',
-    port: 5001,
+    // host: '15.152.36.175',
+    // port: 5001,
   }))
 }
 

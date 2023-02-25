@@ -17,7 +17,8 @@ export default defineConfig({
   root: path.resolve(__dirname, '../src'),
   server: {
     open: true,
-    port: 3000,
+    // port: 3000,
+    port: 5050,
   },
   build: {
     target: 'es2020',
