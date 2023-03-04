@@ -14,7 +14,7 @@ import {
 
 import { TransitionProps } from '@mui/material/transitions'
 
-import { examApi, checkApi } from '@api/index'
+import { examApi, checkApi, centerApi } from '@api/index'
 
 import { useAppSelector, useAppDispatch } from '@store/index'
 import { setExamDetails } from '@store/modules/dialog'
@@ -23,7 +23,7 @@ import langHook from '@hooks/localHook'
 import { examLang } from '@langs/index'
 
 import { dateTimeConversion } from '@utils/index'
-import { cat } from '@utils/ipfs'
+// import { cat } from '@utils/ipfs'
 
 import Title from '@components/Exam/Title'
 import Take, { ExamJson } from '@components/Exam/Take'
@@ -85,7 +85,10 @@ export default ({ record }: DialogProps): JSX.Element => {
       setAnswers(new Array(cids.length).fill(0))
     }
 
-    const exams = await cat<ExamJson>(cids)
+    // const exams = await cat<ExamJson>(cids)
+
+    const exams = await centerApi.exams(cids)
+    
 
     setExam(exams)
   }

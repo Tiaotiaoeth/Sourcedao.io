@@ -20,6 +20,9 @@ export default defineConfig({
     // port: 3000,
     port: 5050,
   },
+  preview: {
+    port: 5050,
+  },
   build: {
     target: 'es2020',
     minify: false,

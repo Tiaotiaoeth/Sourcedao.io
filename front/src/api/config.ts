@@ -27,3 +27,10 @@ export const WORKFLOW_ADDRESS = (env === 'pro') ? ''
     : (env === 'sit' ? '0x0051Cd4974604C1721D5521019C242FE27aD453B'
       : (env === 'dev' ? '0x0051Cd4974604C1721D5521019C242FE27aD453B'
         : '0x0051Cd4974604C1721D5521019C242FE27aD453B')))
+
+// API_HOST
+export const API_HOST = (env === 'pro') ? ''
+  : (env === 'pre' ? ''
+    : (env === 'sit' ? '//15.152.36.175:8080'
+      : (env === 'dev' ? '//15.152.36.175:8080'
+        : '//15.152.36.175:8080')))

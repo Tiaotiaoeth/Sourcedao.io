@@ -15,10 +15,10 @@ import html2canvas from 'html2canvas'
 
 import { useAppSelector } from '@store/index'
 
-import { examApi, workflowApi, rewardApi } from '@api/index'
+import { examApi, workflowApi, rewardApi, centerApi } from '@api/index'
 
 import { dataURLtoFile } from '@utils/index'
-import { add, cat } from '@utils/ipfs'
+import { add } from '@utils/ipfs'
 
 import { CSTSCORELEVEL, CSTLEVEL } from '@constants/exam'
 
@@ -113,7 +113,8 @@ export default (): JSX.Element => {
     setExam(new Array(cids.length).fill(null))
     setAnswers(new Array(cids.length).fill(0))
 
-    const exams = await cat<ExamJson>(cids)
+    // const exams = await cat<ExamJson>(cids)
+    const exams = await centerApi.exams(cids)
 
     setExam(exams)
   }
