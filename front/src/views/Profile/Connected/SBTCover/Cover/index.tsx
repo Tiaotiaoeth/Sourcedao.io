@@ -4,6 +4,8 @@ import { Skeleton } from '@mui/material'
 
 import { catImg } from '@utils/ipfs'
 
+// import { centerApi } from '@api/index'
+
 interface CoverProps {
   picContent: string
   examId: string
@@ -21,6 +23,10 @@ export default ({
     catImg(picContent).then((res) => {
       setCover(res)
     })
+
+    // centerApi.imgBase64(picContent).then((res) => {
+    //   console.log(res, 'res');
+    // })
   }, [])
   return (
     <>

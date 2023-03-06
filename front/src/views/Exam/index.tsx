@@ -17,8 +17,8 @@ import { useAppSelector } from '@store/index'
 
 import { examApi, workflowApi, rewardApi, centerApi } from '@api/index'
 
-import { dataURLtoFile } from '@utils/index'
-import { add } from '@utils/ipfs'
+// import { dataURLtoFile } from '@utils/index'
+// import { add } from '@utils/ipfs'
 
 import { CSTSCORELEVEL, CSTLEVEL } from '@constants/exam'
 
@@ -159,8 +159,13 @@ export default (): JSX.Element => {
     html2canvas(dom, { canvas, scale: 2 }).then(async (canvas) => {
       const dataURI = canvas.toDataURL('image/png')
       const { score } = sbtData
-      const file = dataURLtoFile(dataURI)
-      hash = await add(file)
+      // const file = dataURLtoFile(dataURI)
+      // hash = await add(file)
+      hash = await centerApi.uploadImage(dataURI)
+      // console.log(hash, 'hash');
+      
+
+      
       const res = await workflowApi.submit(
         accountAddress,
         id,
@@ -176,7 +181,7 @@ export default (): JSX.Element => {
   }, [sbtData])
 
   useEffect(() => {
-    if (state) navigate('.', { state: null }) // <-- redirect to current path w/o state
+    // if (state) navigate('.', { state: null }) 
   }, [navigate])
 
   return (

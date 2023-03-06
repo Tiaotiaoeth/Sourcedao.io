@@ -3,6 +3,8 @@ import instance from './intercept'
 // 请求头部信息
 export type HeadersOptions = {
   'app-lang'?: string,
+  'responseType'?: string
+  'Content-Type'?: string
 }
 
 export type DataType = {
