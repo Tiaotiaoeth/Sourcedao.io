@@ -38,9 +38,9 @@ export const API_HOST = (env === 'pro') ? ''
 // IPFS_HOST
 export const IPFS_HOST = (env === 'pro') ? ''
   : (env === 'pre' ? ''
-    : (env === 'sit' ? '//15.152.36.175:8000'
-      : (env === 'dev' ? '//15.152.36.175:8000'
-        : '//15.152.36.175:8000')))
+    : (env === 'sit' ? '//15.152.36.175'
+      : (env === 'dev' ? '//15.152.36.175'
+        : '//15.152.36.175')))
 // export const IPFS_HOST = (env === 'pro') ? ''
 //   : (env === 'pre' ? ''
 //     : (env === 'sit' ? '//15.152.36.175:5001'
