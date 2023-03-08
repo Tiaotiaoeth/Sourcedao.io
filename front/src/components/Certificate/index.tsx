@@ -5,10 +5,10 @@ import { certificateLang, examLang } from '@langs/index'
 
 import { CSTLEVEL } from '@constants/exam'
 
-import { examApi } from '@api/index'
+import { examApi, centerApi } from '@api/index'
 
 import { truncateMiddle, dateTimeConversion } from '@utils/index'
-import { catImg } from '@utils/ipfs'
+// import { catImg } from '@utils/ipfs'
 
 import type { SourceDaoReward } from '@api/reward'
 
@@ -29,7 +29,10 @@ export default ({ sbt, data }: CertificateProps): JSX.Element => {
     examApi.getTypeName(data.qtype).then((res) => {
       setName(res)
     })
-    catImg(data.picContent).then((res) => {
+    // catImg(data.picContent).then((res) => {
+    //   setPicContent(res)
+    // })
+    centerApi.imgBase64(data.picContent).then((res) => {
       setPicContent(res)
     })
   }, [])

@@ -2,6 +2,11 @@ import Abstract from '@api/axios/index'
 import { API_HOST, IPFS_HOST } from '@api/config'
 import type { ExamJson } from '@components/Exam/Take'
 
+interface UploadImageResponse {
+  hash: string
+  status: number
+}
+
 class Center extends Abstract {
 
   baseURL = API_HOST
@@ -21,7 +26,7 @@ class Center extends Abstract {
     const url = `/storage/uploadImage`
     const baseURL = IPFS_HOST
     const data = { content }
-    return this.postReq<string>({ url, baseURL, data })
+    return this.postReq<UploadImageResponse>({ url, baseURL, data })
   }
   // async uploadImage(file: File) {
   //   const url = `/api/v0/add`
@@ -33,12 +38,7 @@ class Center extends Abstract {
 
   async imgBase64(hash: string) {
     const url = `/ipfs/${hash}`
-    const res = await this.getReq<BlobPart>({ url, headers: { responseType: 'blob' } })
-    const blob = new Blob([res])
-    const reader = new window.FileReader()
-    reader.readAsDataURL(blob)
-
-    return new Promise((resolve) => reader.onloadend = () => resolve(reader.result))
+    return await this.getReq<string>({ url })
   }
 
 }

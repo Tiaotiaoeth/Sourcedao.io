@@ -161,8 +161,8 @@ export default (): JSX.Element => {
       const { score } = sbtData
       // const file = dataURLtoFile(dataURI)
       // hash = await add(file)
-      hash = await centerApi.uploadImage(dataURI)
-      // console.log(hash, 'hash');
+      const resImg = await centerApi.uploadImage(dataURI)
+      hash = resImg.hash
       
 
       

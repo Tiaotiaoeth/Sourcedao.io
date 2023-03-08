@@ -11,6 +11,12 @@ module.exports = merge(base, {
     compress: true,
     hot: true, 
     historyApiFallback: true,
+    proxy: {
+      '/api': {
+        target: 'http://15.152.36.175',
+        pathRewrite: { '^/api': '' },
+      },
+    },
   },
   plugins: [
     new webpack.HotModuleReplacementPlugin(),
