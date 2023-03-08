@@ -181,7 +181,7 @@ export default (): JSX.Element => {
   }, [sbtData])
 
   useEffect(() => {
-    // if (state) navigate('.', { state: null }) 
+    if (state) navigate('.', { state: null }) 
   }, [navigate])
 
   return (
