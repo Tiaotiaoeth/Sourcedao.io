@@ -106,8 +106,9 @@ export default ({
         level
       )
       await exam.wait()
-      navigate(`/exam/${examId}`, {
+      navigate(`/exam`, {
         state: {
+          examId,
           type,
           level,
           name,
@@ -209,12 +210,12 @@ export default ({
               row
               sx={{ height: 42, mb: 2 }}
             >
-              {levels.map((item) => (
+              {levels.map((item, index) => (
                 <FormControlLabel
                   key={item.levelId}
                   value={item.levelId}
                   control={<Radio />}
-                  disabled={loading}
+                  disabled={loading || index > 0}
                   label={local(
                     examLang[
                       (CSTLEVEL[

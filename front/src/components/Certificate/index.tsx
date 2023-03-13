@@ -20,6 +20,7 @@ export interface CertificateProps {
 }
 
 export default ({ sbt, data }: CertificateProps): JSX.Element => {
+  
   const local = langHook()
 
   const [name, setName] = useState('')
@@ -39,7 +40,7 @@ export default ({ sbt, data }: CertificateProps): JSX.Element => {
 
   return (
     <div className="certificate">
-      {name && (
+      { (
         <>
           <img
             className="certificate_left"

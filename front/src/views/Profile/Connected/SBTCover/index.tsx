@@ -32,7 +32,7 @@ export default ({ sbts }: SBTCoverProps): JSX.Element => {
   const isExpired = (time: number, qduration: number): boolean => {
     const thousand = 1000
     time = parseInt(time.toString()) * thousand
-    qduration = parseInt(qduration.toString()) * thousand
+    qduration = parseInt(qduration.toString()) * 30 * 24 * 60 * 60 * thousand
 
     return time + qduration < currentTime
   }

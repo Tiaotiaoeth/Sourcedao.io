@@ -7,7 +7,7 @@ import React, {
 } from 'react'
 import { findDOMNode } from 'react-dom'
 
-import { useParams, useLocation, useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 
 import { Box } from '@mui/material'
 
@@ -37,10 +37,10 @@ type State = {
   level: keyof typeof CSTLEVEL
   name: string
   org: string
+  examId: string
 }
 
 export default (): JSX.Element => {
-  const { id = '' } = useParams()
 
   const { state } = useLocation()
 
@@ -99,8 +99,8 @@ export default (): JSX.Element => {
       if (e.keyCode === 116) return false
     }
     document.oncontextmenu = () => false
-
-    const cids = await examApi.getExam(id)
+    
+    const cids = await examApi.getExam(state.examId)
 
     const _duration = await examApi.getExaminationDuration(
       state.type,
@@ -150,13 +150,13 @@ export default (): JSX.Element => {
     const canvas = document.createElement('canvas')
     const width = 300
     const height = 400
-    canvas.width = width * 2
-    canvas.height = height * 2
+    canvas.width = width * 10
+    canvas.height = height * 10
     // 设定 canvas css宽高为 DOM 节点宽高
     canvas.style.width = `${width}px`
     canvas.style.height = `${height}px`
     // 获取画笔
-    html2canvas(dom, { canvas, scale: 2 }).then(async (canvas) => {
+    html2canvas(dom, { canvas, scale: 10 }).then(async (canvas) => {
       const dataURI = canvas.toDataURL('image/png')
       const { score } = sbtData
       // const file = dataURLtoFile(dataURI)
@@ -164,17 +164,15 @@ export default (): JSX.Element => {
       const resImg = await centerApi.uploadImage(dataURI)
       hash = resImg.hash
       
-
-      
       const res = await workflowApi.submit(
         accountAddress,
-        id,
+        routerState!.examId,
         Math.floor(score),
         answers,
         hash
       )
       await res.wait()
-      const data = await rewardApi.getPreSBTMetaByExam(id)
+      const data = await rewardApi.getPreSBTMetaByExam(routerState!.examId)
 
       setSbt({ sbt: dataURI, data })
     })

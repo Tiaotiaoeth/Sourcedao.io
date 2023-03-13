@@ -21,7 +21,7 @@ export const routeMap = {
     isSider: true,
   },
   '/exam': {
-    name: '/exam/:id',
+    name: '/exam',
     isConnect: true,
     isHeader: false,
     isSider: false,
@@ -38,7 +38,7 @@ export const routes: RouteObject[] = [
     element: lazyLoad(<Certification />),
   },
   {
-    path: '/exam/:id',
+    path: '/exam',
     element: lazyLoad(<Exam />),
   },
 ]
