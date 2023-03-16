@@ -150,13 +150,13 @@ export default (): JSX.Element => {
     const canvas = document.createElement('canvas')
     const width = 300
     const height = 400
-    canvas.width = width * 10
-    canvas.height = height * 10
+    canvas.width = width * 20
+    canvas.height = height * 20
     // 设定 canvas css宽高为 DOM 节点宽高
     canvas.style.width = `${width}px`
     canvas.style.height = `${height}px`
     // 获取画笔
-    html2canvas(dom, { canvas, scale: 10 }).then(async (canvas) => {
+    html2canvas(dom, { canvas, scale: 20 }).then(async (canvas) => {
       const dataURI = canvas.toDataURL('image/png')
       const { score } = sbtData
       // const file = dataURLtoFile(dataURI)
