@@ -103,7 +103,7 @@
         await reward.setDefault(sbt.address, checker.address);
 
         // 初始化临时工作流合约
-        contractName = 'WorkflowV1'
+        contractName = 'WorkflowV2'
         constructorArgs = []
         artifactsPath = `browser/contracts/artifacts/${contractName}.json`    
         metadata = JSON.parse(await remix.call('fileManager', 'getFile', artifactsPath))
@@ -112,7 +112,7 @@
         
         const wl = await factory.deploy(...constructorArgs);
         await wl.deployed();
-        console.log("WorkflowV1 deployed at:" + wl.address);
+        console.log("WorkflowV2 deployed at:" + wl.address);
 
         // 设置合约地址
         //wl.setExamForWorkflow(exam.address);

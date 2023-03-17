@@ -7,15 +7,22 @@ import "./Reward.sol";
  * 为了减少用户支付gas的次数，临时优化的考试流程，将
  * 阅卷和mint sbt逻辑移至前端执行。注意：这个流程是
  * 不安全的，因为阅卷和mint逻辑没有在链上执行。
- * V1版本仅用于功能测试，尽可能节省gas
+ *
+ * 相比于V1版本，增加合约安全性
  */
-contract WorkflowV1 is Ownable {
+contract WorkflowV2 is Ownable {
     Examination _examination;
     CheckAnswer _checker;
     Reward _reward;
 
-    // 不同类型考试的介绍，中文
+    // 不同类型考试的介绍，英文
     mapping(uint8 => string) private _typeIntroduction;
+
+    /* 用于额外安全验证 */
+    // 验证必须是同一个用户参与一次考试
+    mapping(string => address) private _examId2User;
+    // 每个考试只允许提交一次
+    mapping(string => bool) private _examSumbitted;
 
     event SetExamForWorkflow(address examAddr);
     event SetCheckerForWorkflow(address checkerAddr);
@@ -65,10 +72,13 @@ contract WorkflowV1 is Ownable {
         uint8 _type, 
         uint8 _level
     ) external {
+        require(_to == msg.sender, "PrepareUsrErr.");
         // 第一步，生成试卷
         _examination.delegateGenerateExam(_to, _examId, _type, _level);
         // 第二步，预生成SBT
         _reward.prefetchSBTMetaByExam(_examId, _type, _level);
+
+        _examId2User[_examId] = _to;
     }
 
     function submit(
@@ -78,10 +88,16 @@ contract WorkflowV1 is Ownable {
         uint8[] calldata _answers,
         string memory _picContent
     ) external {
+        require(_to == msg.sender, "SubmitUsrErr.");
+        require(_to == _examId2User[_examId], "DiffUsr4SingleExam.");
+        require(!_examSumbitted[_examId], "SumbitYet.");
+
         // 上传试题答案
         _checker.setAnswers(_examId, _answers, _score);
         // 生成SBT
         _reward.postSBTMetaByExam(_to, _examId, _score, _picContent);
+
+        _examSumbitted[_examId] = true;
     }
 
     function getIntroduction(uint8 _type) external view returns (string memory) {
