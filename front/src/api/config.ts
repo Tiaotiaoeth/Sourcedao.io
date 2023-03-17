@@ -3,9 +3,9 @@ const env = process.env.WEB_ENV
 // exam
 export const EXAM_ADDRESS = (env === 'pro') ? ''
   : (env === 'pre' ? ''
-    : (env === 'sit' ? ':0x6d581bE549490098c76B66e508A7064dC632FFD6'
-      : (env === 'dev' ? ':0x6d581bE549490098c76B66e508A7064dC632FFD6'
-        : ':0x6d581bE549490098c76B66e508A7064dC632FFD6')))
+    : (env === 'sit' ? '0x6d581bE549490098c76B66e508A7064dC632FFD6'
+      : (env === 'dev' ? '0x6d581bE549490098c76B66e508A7064dC632FFD6'
+        : '0x6d581bE549490098c76B66e508A7064dC632FFD6')))
 
 // reward
 export const REWARD_ADDRESS = (env === 'pro') ? ''
@@ -17,9 +17,9 @@ export const REWARD_ADDRESS = (env === 'pro') ? ''
 // check
 export const CHECK_ADDRESS = (env === 'pro') ? ''
   : (env === 'pre' ? ''
-    : (env === 'sit' ? ':0x6AF4404C2ee6cdaEeBf7Dd50775d71F233b04caa'
-      : (env === 'dev' ? ':0x6AF4404C2ee6cdaEeBf7Dd50775d71F233b04caa'
-        : ':0x6AF4404C2ee6cdaEeBf7Dd50775d71F233b04caa')))
+    : (env === 'sit' ? '0x6AF4404C2ee6cdaEeBf7Dd50775d71F233b04caa'
+      : (env === 'dev' ? '0x6AF4404C2ee6cdaEeBf7Dd50775d71F233b04caa'
+        : '0x6AF4404C2ee6cdaEeBf7Dd50775d71F233b04caa')))
 
 // Workflow
 export const WORKFLOW_ADDRESS = (env === 'pro') ? ''
