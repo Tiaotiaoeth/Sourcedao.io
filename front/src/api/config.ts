@@ -3,30 +3,30 @@ const env = process.env.WEB_ENV
 // exam
 export const EXAM_ADDRESS = (env === 'pro') ? ''
   : (env === 'pre' ? ''
-    : (env === 'sit' ? '0xa5402b2dF555029cc039d7DB917325118FdD791c'
-      : (env === 'dev' ? '0xa5402b2dF555029cc039d7DB917325118FdD791c'
-        : '0xa5402b2dF555029cc039d7DB917325118FdD791c')))
+    : (env === 'sit' ? ':0x6d581bE549490098c76B66e508A7064dC632FFD6'
+      : (env === 'dev' ? ':0x6d581bE549490098c76B66e508A7064dC632FFD6'
+        : ':0x6d581bE549490098c76B66e508A7064dC632FFD6')))
 
 // reward
 export const REWARD_ADDRESS = (env === 'pro') ? ''
   : (env === 'pre' ? ''
-    : (env === 'sit' ? '0xF1cCf9f4824929EA8a2B18ED571B6759e6da3fDf'
-      : (env === 'dev' ? '0xF1cCf9f4824929EA8a2B18ED571B6759e6da3fDf'
-        : '0xF1cCf9f4824929EA8a2B18ED571B6759e6da3fDf')))
+    : (env === 'sit' ? '0x8a44cD755DdE378E721Fbc9c149c8237AB96cb12'
+      : (env === 'dev' ? '0x8a44cD755DdE378E721Fbc9c149c8237AB96cb12'
+        : '0x8a44cD755DdE378E721Fbc9c149c8237AB96cb12')))
 
 // check
 export const CHECK_ADDRESS = (env === 'pro') ? ''
   : (env === 'pre' ? ''
-    : (env === 'sit' ? '0xC4Bd238B4d502f8BA801decb95D00b08c74e5937'
-      : (env === 'dev' ? '0xC4Bd238B4d502f8BA801decb95D00b08c74e5937'
-        : '0xC4Bd238B4d502f8BA801decb95D00b08c74e5937')))
+    : (env === 'sit' ? ':0x6AF4404C2ee6cdaEeBf7Dd50775d71F233b04caa'
+      : (env === 'dev' ? ':0x6AF4404C2ee6cdaEeBf7Dd50775d71F233b04caa'
+        : ':0x6AF4404C2ee6cdaEeBf7Dd50775d71F233b04caa')))
 
 // Workflow
 export const WORKFLOW_ADDRESS = (env === 'pro') ? ''
   : (env === 'pre' ? ''
-    : (env === 'sit' ? '0x0051Cd4974604C1721D5521019C242FE27aD453B'
-      : (env === 'dev' ? '0x0051Cd4974604C1721D5521019C242FE27aD453B'
-        : '0x0051Cd4974604C1721D5521019C242FE27aD453B')))
+    : (env === 'sit' ? '0x0854ba02173B93904Cb8c6C7e944afA477E4c6f7'
+      : (env === 'dev' ? '0x0854ba02173B93904Cb8c6C7e944afA477E4c6f7'
+        : '0x0854ba02173B93904Cb8c6C7e944afA477E4c6f7')))
 
 // API_HOST
 export const API_HOST = (env === 'pro') ? ''
