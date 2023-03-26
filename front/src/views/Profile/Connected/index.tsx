@@ -66,7 +66,7 @@ export default (): JSX.Element => {
 
     const rows = await Promise.all(promiseRow)
 
-    setRows(rows)
+    setRows(rows.reverse())
   }
 
   useEffect(() => {
