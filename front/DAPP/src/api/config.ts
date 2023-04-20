@@ -31,9 +31,9 @@ export const WORKFLOW_ADDRESS = (env === 'pro') ? ''
 // API_HOST
 export const API_HOST = (env === 'pro') ? ''
   : (env === 'pre' ? ''
-    : (env === 'sit' ? '//15.152.36.175:8080'
-      : (env === 'dev' ? '//15.152.36.175:8080'
-        : '//15.152.36.175:8080')))
+    : (env === 'sit' ? '//app.sourcedao.io:8080'
+      : (env === 'dev' ? '//app.sourcedao.io:8080'
+        : '//app.sourcedao.io:8080')))
 
 // IPFS_HOST
 export const IPFS_HOST = (env === 'pro') ? ' '
@@ -43,6 +43,6 @@ export const IPFS_HOST = (env === 'pro') ? ' '
         : '/api')))
 // export const IPFS_HOST = (env === 'pro') ? ''
 //   : (env === 'pre' ? ''
-//     : (env === 'sit' ? '//15.152.36.175:5001'
-//       : (env === 'dev' ? '//15.152.36.175:5001'
-//         : '//15.152.36.175:5001')))
+//     : (env === 'sit' ? '//app.sourcedao.io:5001'
+//       : (env === 'dev' ? '//app.sourcedao.io:5001'
+//         : '//app.sourcedao.io:5001')))

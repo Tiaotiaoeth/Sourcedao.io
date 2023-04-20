@@ -13,7 +13,7 @@ module.exports = merge(base, {
     historyApiFallback: true,
     proxy: {
       '/api': {
-        target: 'http://15.152.36.175',
+        target: 'http://app.sourcedao.io',
         pathRewrite: { '^/api': '' },
       },
     },

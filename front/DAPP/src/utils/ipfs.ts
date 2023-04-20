@@ -55,7 +55,7 @@ export const catImg = async (cid: string): Promise<string> => {
 }
 
 export const path = (hash: string): string =>
-  `http://15.152.36.175:5001/ipfs/${hash}`
+  `http://app.sourcedao.io:5001/ipfs/${hash}`
 
 const utf8ArrayToStr = (array: Uint8Array): string => {
   const len = array.length

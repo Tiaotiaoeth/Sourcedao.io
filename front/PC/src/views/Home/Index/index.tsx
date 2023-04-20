@@ -101,7 +101,7 @@ export default ({ routerIndex }: IndexProps): JSX.Element => {
           transition={transition}
         >
           <motion.a
-            href="//15.152.36.175/"
+            href="//app.sourcedao.io/"
             className="h_i_c_b_launch"
             whileHover={{ scale: 1.2 }}
           >
