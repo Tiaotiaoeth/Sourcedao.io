@@ -1,0 +1,122 @@
+.home_road {
+  width: 1440px;
+  height: 100%;
+  margin: 0 auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  > .home_road_content {
+    position: relative;
+    width: 100%;
+    margin-top: -70px;
+    > .h_r_c_title {
+      font-size: 36px;
+      line-height: 46px;
+      font-weight: 700;
+      text-align: center;
+      margin-bottom: 6px;
+    }
+    > .h_r_c_sub_title {
+      width: 1024px;
+      margin: 0 auto 58px;
+      font-size: 24px;
+      line-height: 32px;
+      text-align: center;
+    }
+    > .h_r_c_road {
+      width: 1104px;
+      height: 492px;
+      margin: 0 auto;
+      position: relative;
+      > .h_r_c_r_bg_left {
+        position: absolute;
+        top: -20%;
+        left: -28%;
+        width: 100%;
+        height: 100%;
+        background: radial-gradient(
+        ellipse farthest-side,
+        #ffffff,
+        #ffffff,
+        #060606
+      );
+      opacity: 0.04;
+      }
+      > .h_r_c_r_bg_right {
+        position: absolute;
+        bottom: 0%;
+        right: -24%;
+        width: 100%;
+        height: 80%;
+        background: radial-gradient(
+        ellipse farthest-side,
+        #ffffff,
+        #ffffff,
+        #060606
+      );
+      opacity: 0.04;
+      }
+      > img {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        margin: 0 auto;
+      }
+      > .h_r_c_r_setp {
+        position: absolute;
+        overflow: hidden;
+        > div {
+          > .h_r_c_r_s_title {
+            font-size: 16px;
+            font-weight: 700;
+            line-height: 1;
+            margin-bottom: 12px;
+          }
+          > .h_r_c_r_s_text {
+            margin-bottom: 1px;
+          }
+        }
+        
+      }
+      > .h_r_c_r_setp1 {
+        bottom: 0px;
+        right: 710px;
+        text-align: right;
+      } 
+
+      > .h_r_c_r_setp2 {
+        width: 500px;
+        bottom: 138px;
+        left: 710px;
+      } 
+
+      > .h_r_c_r_setp3 {
+        bottom: 250px;
+        right: 710px;
+        text-align: right;
+      } 
+      > .h_r_c_r_setp4 {
+        top:  10px;
+        left: 710px;
+      } 
+    }
+  }
+  > .home_road_arrow {
+    position: absolute;
+    width: 10px;
+    height: 12px;
+    bottom: 36px;
+    left: 0;
+    right: 0;
+    margin: 0 auto;
+    z-index: 99;
+    animation: bounce-inSS 2s infinite; /* 启动动画特效 */
+    cursor: pointer;
+    > img {
+      width: 100%;
+      height: 100%;
+    }
+  }
+}
+

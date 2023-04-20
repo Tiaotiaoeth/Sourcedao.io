@@ -1,0 +1,49 @@
+.home {
+  min-width: 1440px;
+  height: 100vh;
+
+  >.swiper {
+    min-width: 1440px;
+    height: calc(100vh - 120px);
+    background-color: #060606;
+
+    >.swiper-wrapper {
+      width: 100%;
+
+      >.swiper-slide {
+        width: 100%;
+        &:last-child {
+          height: 400px;
+        }
+      }
+    }
+  }
+
+  > canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 9;
+    pointer-events: none;
+  }
+}
+
+/* 箭头动画 */
+@keyframes bounce-inSS {
+
+  0%,
+  20%,
+  50%,
+  80%,
+  100% {
+    transform: translateY(0);
+  }
+
+  40% {
+    transform: translateY(-15px);
+  }
+
+  60% {
+    transform: translateY(-7px);
+  }
+}

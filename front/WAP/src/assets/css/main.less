@@ -1,0 +1,104 @@
+@import './config.less';
+
+* {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+body,
+div,
+dl,
+dt,
+dd,
+ul,
+ol,
+li,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+pre,
+code,
+form,
+fieldset,
+legend,
+input,
+button,
+textarea,
+p,
+blockquote,
+th,
+td {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: @bgColor;
+  color: @mainColor;
+  font-size: @mainFontSize;
+  font-family: @mainFont;
+  color: #fff;
+}
+
+td,
+th,
+caption {
+  font-size: @mainFontSize;
+}
+
+a {
+  color: @mainLinkColor;
+  cursor: pointer;
+}
+
+img {
+  border: none;
+  display: block;
+}
+
+ol,
+ul,
+li {
+  list-style: none;
+}
+
+input,
+textarea {
+  outline: none;
+}
+
+table {
+  border-collapse: collapse;
+}
+
+ul,
+li {
+  list-style: none;
+}
+
+.clearfix {
+  clear: both;
+  zoom: 1;
+}
+
+.clearfix:after {
+  content: ' ';
+  height: 0;
+  display: block;
+  line-height: 0;
+  clear: both;
+  visibility: hidden;
+}
+
+@media (min-width: 750px) {
+  .home {
+    width: 414px;
+    margin: 0 auto;
+    overflow: hidden;
+    position: relative;
+  }
+}

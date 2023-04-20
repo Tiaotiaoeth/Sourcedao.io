@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SourceDAO</title>
+  <script>
+    var getClietnWidth = document.documentElement.clientWidth;
+    var defaultWidth = 750;
+    var clientWidth = getClietnWidth > defaultWidth ? defaultWidth : getClietnWidth;
+    document.documentElement.style.fontSize = clientWidth / (4.14) + "px";
+  </script>
+</head>
+
+<body>
+  <div id="root"></div>
+
+  <!-- vite start -->
+  <script>
+    window.process = {
+      env: {
+        WEB_ENV: 'loacl'
+      }
+    }
+  </script>
+  <script type="module" src="/main.tsx"></script>
+  <!-- vite end -->
+</body>
+
+</html>
